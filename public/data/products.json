@@ -1,0 +1,87 @@
+{
+  "mainProducts": [
+    {
+      "id": "wave",
+      "name": "Wave",
+      "apiName": "wave",
+      "buyLink": "",
+      "viewLink": ""
+    },
+    {
+      "id": "seliware",
+      "name": "Seliware",
+      "apiName": "seliware",
+      "buyLink": "",
+      "viewLink": ""
+    },
+    {
+      "id": "matcha",
+      "name": "Matcha",
+      "apiName": "matcha",
+      "buyLink": "",
+      "viewLink": ""
+    }
+  ],
+  "otherProducts": [
+    {
+      "id": "potassium",
+      "name": "Potassium",
+      "apiName": "potassium",
+      "buyLink": "",
+      "viewLink": ""
+    },
+    {
+      "id": "bunni",
+      "name": "Bunni",
+      "apiName": "bunni.lol",
+      "buyLink": "",
+      "viewLink": ""
+    }
+  ],
+  "externalProducts": [
+    {
+      "id": "serotonin",
+      "name": "Serotonin",
+      "apiName": "serotonin",
+      "buyLink": "",
+      "viewLink": ""
+    },
+    {
+      "id": "isabelle",
+      "name": "Isabelle",
+      "apiName": "isabelle",
+      "buyLink": "",
+      "viewLink": ""
+    },
+    {
+      "id": "ronin",
+      "name": "Ronin",
+      "apiName": "ronin",
+      "buyLink": "",
+      "viewLink": ""
+    },
+    {
+      "id": "yerba",
+      "name": "Yerba",
+      "apiName": "yerba",
+      "buyLink": "",
+      "viewLink": ""
+    }
+  ],
+  "androidProducts": [
+    {
+      "id": "codex",
+      "name": "Codex",
+      "apiName": "codex",
+      "buyLink": "",
+      "viewLink": ""
+    },
+    {
+      "id": "arceus",
+      "name": "Arceus X V5",
+      "apiName": "arceus x v5",
+      "buyLink": "",
+      "viewLink": ""
+    }
+  ]
+}
