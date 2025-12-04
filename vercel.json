@@ -1,23 +1,11 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "public/**",
-      "use": "@vercel/static"
-    }
-  ],
+  "buildCommand": "npm run build",
+  "outputDirectory": "public",
   "rewrites": [
     {
-      "source": "/data/:path*",
-      "destination": "/public/data/:path*"
-    },
-    {
-      "source": "/:path*",
-      "destination": "/public/:path*"
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
     }
   ]
 }
