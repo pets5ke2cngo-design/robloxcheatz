@@ -320,6 +320,19 @@ const _src = {
   p: _d('L2xvY2Fsc2NyaXB0cy92b3hsaXMuTkVUL21haW4vYXNzZXRzL3VuYy8=')
 };
 
+// Rubis.app sUNC test data (updated Dec 2025)
+const rubisTestData = {
+  'wave': {
+    sunc: { percentage: 100, passed: 85, total: 85, failed: 0, testDate: '2025-12-02', version: '2.1.0', source: 'rubis.app' }
+  },
+  'seliware': {
+    sunc: { percentage: 100, passed: 85, total: 85, failed: 0, testDate: '2025-12-02', version: '2.1.0', source: 'rubis.app' }
+  },
+  'potassium': {
+    sunc: { percentage: 100, passed: 85, total: 85, failed: 0, testDate: '2025-12-02', version: '2.1.0', source: 'rubis.app' }
+  }
+};
+
 // Executor mapping (internal reference)
 const _xMap = {
   'wave': 'wave',
@@ -341,7 +354,9 @@ const _xMap = {
   'synapsez': 'synapsez',
   'vegax': 'vegax',
   'xeno': 'xeno',
-  'zenith': 'zenith'
+  'zenith': 'zenith',
+  'matcha': 'matcha',
+  'potassium': 'potassium'
 };
 
 app.get('/api/unc-test/:name', strictLimiter, async (req, res) => {
@@ -349,6 +364,7 @@ app.get('/api/unc-test/:name', strictLimiter, async (req, res) => {
     const { name } = req.params;
     const testType = req.query.type === 'unc' ? 'unc' : 'sunc';
     const cacheKey = `${name.toLowerCase()}_${testType}`;
+    const nameLower = name.toLowerCase();
     
     // Check cache
     const now = Date.now();
@@ -356,8 +372,30 @@ app.get('/api/unc-test/:name', strictLimiter, async (req, res) => {
       return res.json(uncTestCache[cacheKey].data);
     }
     
+    // Check for rubis.app data (priority for sunc)
+    if (testType === 'sunc' && rubisTestData[nameLower]?.sunc) {
+      const rubisData = rubisTestData[nameLower].sunc;
+      const parsedData = {
+        executorName: name,
+        testType: 'sunc',
+        percentage: rubisData.percentage,
+        passed: rubisData.passed,
+        total: rubisData.total,
+        failed: rubisData.failed,
+        testDate: rubisData.testDate,
+        source: rubisData.source,
+        version: rubisData.version,
+        results: [],
+        categories: {}
+      };
+      
+      uncTestCache[cacheKey] = { data: parsedData, timestamp: now };
+      res.setHeader('Cache-Control', 'public, max-age=300');
+      return res.json(parsedData);
+    }
+    
     // Get internal filename
-    const _xName = _xMap[name.toLowerCase()];
+    const _xName = _xMap[nameLower];
     if (!_xName) {
       return res.status(404).json({ error: 'Executor not found in test database' });
     }

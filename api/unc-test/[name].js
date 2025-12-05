@@ -9,6 +9,43 @@ const _src = {
   p: _d('L2xvY2Fsc2NyaXB0cy92b3hsaXMuTkVUL21haW4vYXNzZXRzL3VuYy8=')
 };
 
+// Rubis.app sUNC test data (updated Dec 2025)
+const rubisTestData = {
+  'wave': {
+    sunc: {
+      percentage: 100,
+      passed: 85,
+      total: 85,
+      failed: 0,
+      testDate: '2025-12-02',
+      version: '2.1.0',
+      source: 'rubis.app'
+    }
+  },
+  'seliware': {
+    sunc: {
+      percentage: 100,
+      passed: 85,
+      total: 85,
+      failed: 0,
+      testDate: '2025-12-02',
+      version: '2.1.0',
+      source: 'rubis.app'
+    }
+  },
+  'potassium': {
+    sunc: {
+      percentage: 100,
+      passed: 85,
+      total: 85,
+      failed: 0,
+      testDate: '2025-12-02',
+      version: '2.1.0',
+      source: 'rubis.app'
+    }
+  }
+};
+
 // Executor mapping
 const _xMap = {
   'wave': 'wave',
@@ -31,7 +68,8 @@ const _xMap = {
   'vegax': 'vegax',
   'xeno': 'xeno',
   'zenith': 'zenith',
-  'matcha': 'matcha'
+  'matcha': 'matcha',
+  'potassium': 'potassium'
 };
 
 // Test data parser
@@ -217,21 +255,50 @@ export default async function handler(req, res) {
     const { name } = req.query;
     const testType = req.query.type === 'unc' ? 'unc' : 'sunc';
     const cacheKey = `${name.toLowerCase()}_${testType}`;
+    const nameLower = name.toLowerCase();
     
-    // Check cache
+    // Check cache first
     const now = Date.now();
     if (uncTestCache[cacheKey] && (now - uncTestCache[cacheKey].timestamp) < UNC_CACHE_TTL) {
       res.setHeader('X-Cache', 'HIT');
       return res.status(200).json(uncTestCache[cacheKey].data);
     }
     
-    // Get internal filename
-    const _xName = _xMap[name.toLowerCase()];
+    // Check for rubis.app data (priority for sunc)
+    if (testType === 'sunc' && rubisTestData[nameLower]?.sunc) {
+      const rubisData = rubisTestData[nameLower].sunc;
+      const parsedData = {
+        executorName: name,
+        testType: 'sunc',
+        percentage: rubisData.percentage,
+        passed: rubisData.passed,
+        total: rubisData.total,
+        failed: rubisData.failed,
+        testDate: rubisData.testDate,
+        source: rubisData.source,
+        version: rubisData.version,
+        results: [],
+        categories: {}
+      };
+      
+      // Cache rubis result
+      uncTestCache[cacheKey] = {
+        data: parsedData,
+        timestamp: now
+      };
+      
+      res.setHeader('X-Cache', 'RUBIS');
+      res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+      return res.status(200).json(parsedData);
+    }
+    
+    // Get internal filename for voxlis source
+    const _xName = _xMap[nameLower];
     if (!_xName) {
       return res.status(404).json({ error: 'Executor not found in test database' });
     }
     
-    // Fetch from source
+    // Fetch from voxlis source
     const response = await fetch(
       `https://${_src.h}${_src.p}${_xName}.json`,
       { 
