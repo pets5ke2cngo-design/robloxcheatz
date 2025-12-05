@@ -265,7 +265,7 @@ const UNCModal: React.FC<UNCModalProps> = ({ isOpen, onClose, exploitName, testT
                 testType === 'sunc' ? 'bg-pink-500/15 border border-pink-500/30' : 'bg-blue-500/15 border border-blue-500/30'
               }`}>
                 <span className={`text-2xl font-bold ${testType === 'sunc' ? 'text-pink-400' : 'text-blue-400'}`}>
-                  {testData.percentage}%
+                  {percentage !== null ? percentage : testData.percentage}%
                 </span>
               </div>
               
