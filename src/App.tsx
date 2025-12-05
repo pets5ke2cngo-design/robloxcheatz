@@ -769,14 +769,16 @@ const App: React.FC = () => {
 
       <header className="fixed top-0 left-0 right-0 h-[100px] z-50 flex items-center justify-between px-6 pointer-events-none">
         <div className="pointer-events-auto">
-          <AnimatedLogo
-            src="/logo.jpg"
-            alt="RobloxCheatz"
-            size={50}
-            magnification={70}
-            distance={200}
-            spring={{ mass: 0.1, stiffness: 150, damping: 12 }}
-          />
+          <a href="https://robloxcheatz.com" className="block cursor-pointer">
+            <AnimatedLogo
+              src="/logo.jpg"
+              alt="RobloxCheatz"
+              size={50}
+              magnification={70}
+              distance={200}
+              spring={{ mass: 0.1, stiffness: 150, damping: 12 }}
+            />
+          </a>
         </div>
         
         <div className="pointer-events-auto">

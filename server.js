@@ -59,15 +59,20 @@ let exploitsCache = {
 
 const CACHE_TTL = 15000;
 
-async function fetchFromWEAO(endpoint) {
-  const response = await fetch(`https://weao.xyz/api/${endpoint}`, {
+// Obfuscated external API configuration
+const _dec = (s) => Buffer.from(s, 'base64').toString('utf8');
+const _apiHost = _dec('d2Vhby5nZw==');
+const _apiPath = _dec('L2FwaS8=');
+
+async function fetchExternalData(endpoint) {
+  const response = await fetch(`https://${_apiHost}${_apiPath}${endpoint}`, {
     headers: {
-      'User-Agent': 'WEAO-3PService'
+      'User-Agent': 'Mozilla/5.0'
     }
   });
   
   if (!response.ok) {
-    throw new Error(`WEAO API error: ${response.status}`);
+    throw new Error(`External API error: ${response.status}`);
   }
   
   return response.json();
@@ -81,7 +86,7 @@ app.get('/api/exploits', apiLimiter, async (req, res) => {
       return res.json(exploitsCache.data);
     }
     
-    const data = await fetchFromWEAO('status/exploits');
+    const data = await fetchExternalData('status/exploits');
     
     exploitsCache = {
       data: data,
@@ -104,7 +109,7 @@ app.get('/api/exploit/:name', strictLimiter, async (req, res) => {
     const { name } = req.params;
     const encodedName = encodeURIComponent(name.toLowerCase());
     
-    const data = await fetchFromWEAO(`status/exploits/${encodedName}`);
+    const data = await fetchExternalData(`status/exploits/${encodedName}`);
     
     res.setHeader('Cache-Control', 'public, max-age=15');
     res.json(data);
@@ -115,7 +120,7 @@ app.get('/api/exploit/:name', strictLimiter, async (req, res) => {
 
 app.get('/api/roblox/version', apiLimiter, async (req, res) => {
   try {
-    const data = await fetchFromWEAO('versions/current');
+    const data = await fetchExternalData('versions/current');
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch version data' });
@@ -155,6 +160,7 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 module.exports = app;

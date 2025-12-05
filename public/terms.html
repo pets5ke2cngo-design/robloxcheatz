@@ -3,175 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Terms of Service - RobloxCheatz</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>RobloxCheatz - Terms of Service</title>
+  <meta name="description" content="Terms of Service for RobloxCheatz - Rules and guidelines for using our service.">
+  <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/jpeg" href="/logo.jpg">
   <link rel="apple-touch-icon" href="/logo.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/src/styles.css">
-</head>
-<body>
-  <div class="page-container">
-    <div id="particles-bg" class="particles-bg"></div>
-    <div class="glow-effect glow-pink"></div>
-    <div class="glow-effect glow-blue"></div>
-
-    <header>
-      <div class="header-content">
-        <div class="logo-container cursor-target">
-          <div class="logo-metallic">
-            <img src="/logo.jpg" alt="Logo">
-          </div>
-        </div>
-
-        <nav class="nav-container">
-          <div class="gooey-nav-container">
-            <nav>
-              <ul>
-                <li>
-                  <a href="/" class="cursor-target">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                      <polyline points="9 22 9 12 15 12 15 22"/>
-                    </svg>
-                    Home
-                  </a>
-                </li>
-                <li>
-                  <a href="/information" class="cursor-target">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <circle cx="12" cy="12" r="10"/>
-                      <path d="M12 16v-4"/>
-                      <path d="M12 8h.01"/>
-                    </svg>
-                    Information
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </nav>
-      </div>
-    </header>
-
-    <main class="legal-page">
-      <div class="legal-content">
-        <h1>Terms of Service</h1>
-        <p>Last updated: December 2024</p>
-
-        <h2>1. Acceptance of Terms</h2>
-        <p>By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by these terms, please do not use this service.</p>
-
-        <h2>2. Description of Service</h2>
-        <p>This website provides information about third-party software status tracking. We aggregate publicly available information from external APIs and display it in a user-friendly format. We do not host, distribute, or sell any software.</p>
-
-        <h2>3. Disclaimer</h2>
-        <p>The information provided on this website is for general informational purposes only. We make no representations or warranties of any kind, express or implied, about the completeness, accuracy, reliability, suitability, or availability of the information.</p>
-
-        <h2>4. Third-Party Links</h2>
-        <p>This website may contain links to third-party websites. We have no control over the content, privacy policies, or practices of any third-party sites and assume no responsibility for them.</p>
-
-        <h2>5. Limitation of Liability</h2>
-        <p>In no event shall we be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses.</p>
-
-        <h2>6. User Conduct</h2>
-        <p>You agree not to:</p>
-        <ul>
-          <li>Use the service for any unlawful purpose</li>
-          <li>Attempt to gain unauthorized access to any portion of the service</li>
-          <li>Interfere with or disrupt the service or servers</li>
-          <li>Scrape, data mine, or use automated systems to access the service</li>
-          <li>Conduct DDoS attacks or any form of service disruption</li>
-        </ul>
-
-        <h2>7. Rate Limiting</h2>
-        <p>To ensure fair usage, we implement rate limiting on API requests. Excessive requests may result in temporary or permanent access restrictions.</p>
-
-        <h2>8. Modifications</h2>
-        <p>We reserve the right to modify or discontinue the service at any time without notice. We also reserve the right to modify these terms at any time.</p>
-
-        <h2>9. Governing Law</h2>
-        <p>These terms shall be governed by and construed in accordance with applicable laws, without regard to conflict of law provisions.</p>
-
-        <h2>10. Contact</h2>
-        <p>For questions about these Terms of Service, please contact us through our official channels.</p>
-      </div>
-    </main>
-
-    <footer>
-      <div class="footer-content">
-        <div class="footer-links">
-          <a href="/terms.html" class="cursor-target">Terms of Service</a>
-          <a href="/privacy.html" class="cursor-target">Privacy Policy</a>
-        </div>
-        <p class="footer-copyright">2024 RobloxCheatz. All rights reserved. Not affiliated with Roblox Corporation.</p>
-      </div>
-    </footer>
-  </div>
-
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    class Particles {
-      constructor(container, options = {}) {
-        this.container = container;
-        this.particleCount = options.particleCount || 100;
-        this.colors = options.colors || ['#ffffff', '#ff0ae2', '#3b82f6'];
-        this.speed = options.speed || 0.5;
-        this.canvas = document.createElement('canvas');
-        this.ctx = this.canvas.getContext('2d');
-        this.particles = [];
-        this.init();
-      }
-      init() {
-        this.container.appendChild(this.canvas);
-        this.resize();
-        window.addEventListener('resize', () => this.resize());
-        for (let i = 0; i < this.particleCount; i++) {
-          this.particles.push({
-            x: Math.random() * this.canvas.width,
-            y: Math.random() * this.canvas.height,
-            size: Math.random() * 2 + 1,
-            speedX: (Math.random() - 0.5) * this.speed,
-            speedY: (Math.random() - 0.5) * this.speed,
-            color: this.colors[Math.floor(Math.random() * this.colors.length)],
-            opacity: Math.random() * 0.5 + 0.3
-          });
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            pink: {
+              500: '#ff0ae2',
+            },
+            neutral: {
+              800: '#222222',
+              900: '#111111',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
         }
-        this.animate();
-      }
-      resize() {
-        this.canvas.width = this.container.clientWidth;
-        this.canvas.height = this.container.clientHeight;
-      }
-      animate() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.particles.forEach(p => {
-          p.x += p.speedX;
-          p.y += p.speedY;
-          if (p.x < 0) p.x = this.canvas.width;
-          if (p.x > this.canvas.width) p.x = 0;
-          if (p.y < 0) p.y = this.canvas.height;
-          if (p.y > this.canvas.height) p.y = 0;
-          this.ctx.beginPath();
-          this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          this.ctx.fillStyle = p.color;
-          this.ctx.globalAlpha = p.opacity;
-          this.ctx.fill();
-        });
-        this.ctx.globalAlpha = 1;
-        requestAnimationFrame(() => this.animate());
       }
     }
-    document.addEventListener('DOMContentLoaded', () => {
-      const container = document.getElementById('particles-bg');
-      if (container) {
-        new Particles(container, {
-          particleCount: 50,
-          colors: ['rgba(255, 255, 255, 0.5)', 'rgba(255, 10, 226, 0.3)', 'rgba(59, 130, 246, 0.3)'],
-          speed: 0.3
-        });
-      }
-    });
   </script>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: #08080c;
+      overflow-x: hidden;
+    }
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .animate-gradient {
+      animation: gradient 8s ease infinite;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script src="/dist/terms-bundle.js"></script>
 </body>
 </html>

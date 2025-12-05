@@ -22,7 +22,7 @@ export default function GradientText({
 
   return (
     <div
-      className={`relative mx-auto flex max-w-fit flex-row items-center justify-center font-medium transition-shadow duration-500 overflow-hidden ${className}`}
+      className={`relative mx-auto flex max-w-fit flex-row items-center justify-center font-medium transition-shadow duration-500 ${className}`}
     >
       {showBorder && (
         <div
@@ -45,7 +45,7 @@ export default function GradientText({
         </div>
       )}
       <div
-        className="inline-block relative z-2 text-transparent bg-cover animate-gradient"
+        className="inline-block relative z-2 text-transparent bg-cover animate-gradient pb-1"
         style={{
           ...gradientStyle,
           backgroundClip: 'text',

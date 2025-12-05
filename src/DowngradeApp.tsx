@@ -57,7 +57,10 @@ const DowngradeCard: React.FC<DowngradeCardProps> = ({ title, children, icon, va
   );
 };
 
-const WEAO_DOMAINS = ['weao.gg', 'weao.xyz', 'whatexpsare.online', 'whatexploitsaretra.sh'];
+// Obfuscated API configuration
+const _0x = (s: string) => atob(s);
+const _d = ['d2Vhby5nZw==', 'd2Vhby54eXo=', 'd2hhdGV4cHNhcmUub25saW5l', 'd2hhdGV4cGxvaXRzYXJldHJhLnNo'];
+const _r = 'cmRkLndlYW8uZ2c=';
 
 const DowngradeApp: React.FC = () => {
   const [previousVersion, setPreviousVersion] = useState('version-e380c8edc8f6477c');
@@ -86,13 +89,11 @@ const DowngradeApp: React.FC = () => {
   }, []);
 
   const fetchWithFallback = async (endpoint: string) => {
-    const domains = [...WEAO_DOMAINS].sort(() => Math.random() - 0.5);
+    const domains = [..._d].sort(() => Math.random() - 0.5).map(d => _0x(d));
     for (const domain of domains) {
       try {
         const url = `https://${domain}${endpoint}`;
-        const response = await fetch(url, {
-          headers: { 'User-Agent': 'WEAO-3PService' }
-        });
+        const response = await fetch(url);
         if (response.status === 429) continue;
         if (!response.ok) continue;
         return await response.json();
@@ -123,7 +124,7 @@ const DowngradeApp: React.FC = () => {
     const channelName = 'LIVE';
     const binaryType = 'WindowsPlayer';
     const queryString = `?channel=${encodeURIComponent(channelName)}&binaryType=${encodeURIComponent(binaryType)}&version=${encodeURIComponent(previousVersion)}`;
-    window.open(`https://rdd.weao.gg/${queryString}`, '_blank');
+    window.open(`https://${_0x(_r)}/${queryString}`, '_blank');
   };
 
   const copyToClipboard = async (text: string, id: string) => {
@@ -246,14 +247,16 @@ const DowngradeApp: React.FC = () => {
 
       <header className="fixed top-0 left-0 right-0 h-[100px] z-50 flex items-center justify-between px-6 pointer-events-none">
         <div className="pointer-events-auto">
-          <AnimatedLogo
-            src="/logo.jpg"
-            alt="RobloxCheatz"
-            size={50}
-            magnification={70}
-            distance={200}
-            spring={{ mass: 0.1, stiffness: 150, damping: 12 }}
-          />
+          <a href="https://robloxcheatz.com" className="block cursor-pointer">
+            <AnimatedLogo
+              src="/logo.jpg"
+              alt="RobloxCheatz"
+              size={50}
+              magnification={70}
+              distance={200}
+              spring={{ mass: 0.1, stiffness: 150, damping: 12 }}
+            />
+          </a>
         </div>
         
         <div className="pointer-events-auto">
@@ -271,13 +274,13 @@ const DowngradeApp: React.FC = () => {
       <main className="pt-28 pb-20 max-w-5xl mx-auto px-6 relative z-10">
         <div className="text-center mb-12">
           <GradientText 
-            className="text-4xl md:text-5xl font-black"
+            className="text-4xl md:text-5xl font-black leading-relaxed relative z-10"
             colors={['#ff0ae2', '#9c40ff', '#3b82f6', '#ff0ae2']}
             animationSpeed={6}
           >
             How to Downgrade
           </GradientText>
-          <p className="text-gray-500 text-sm mt-4">
+          <p className="text-gray-500 text-sm mt-6">
             Step-by-step guide to downgrade Roblox using Fishstrap
           </p>
         </div>

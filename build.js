@@ -40,6 +40,16 @@ const buildConfigs = [
     entryPoints: ['src/downgrade.tsx'],
     outfile: 'public/dist/downgrade-bundle.js',
   },
+  {
+    ...commonOptions,
+    entryPoints: ['src/privacy.tsx'],
+    outfile: 'public/dist/privacy-bundle.js',
+  },
+  {
+    ...commonOptions,
+    entryPoints: ['src/terms.tsx'],
+    outfile: 'public/dist/terms-bundle.js',
+  },
 ];
 
 async function build() {
