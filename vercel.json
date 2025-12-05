@@ -6,6 +6,22 @@
     {
       "source": "/api/:path*",
       "destination": "/api/:path*"
+    },
+    {
+      "source": "/information",
+      "destination": "/information.html"
+    },
+    {
+      "source": "/downgrade",
+      "destination": "/downgrade.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/terms.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/privacy.html"
     }
   ]
 }

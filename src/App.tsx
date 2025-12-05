@@ -727,12 +727,12 @@ const App: React.FC = () => {
     { 
       icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>,
       label: 'Info', 
-      onClick: () => window.location.href = '/information.html'
+      onClick: () => window.location.href = '/information'
     },
     { 
       icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>,
       label: 'Downgrade', 
-      onClick: () => window.location.href = '/downgrade.html'
+      onClick: () => window.location.href = '/downgrade'
     },
   ];
 
@@ -825,7 +825,7 @@ const App: React.FC = () => {
                       />
                       {isDown && product.id === 'wave' && (
                         <a
-                          href="/downgrade.html"
+                          href="/downgrade"
                           className="cursor-target mt-5 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-orange-500 hover:from-blue-600 hover:to-orange-600 hover:scale-[1.02] transition-all animate-pulse"
                           style={{ boxShadow: '0 4px 20px rgba(59, 130, 246, 0.4)' }}
                         >
@@ -837,7 +837,7 @@ const App: React.FC = () => {
                       )}
                       {isDown && product.id === 'seliware' && (
                         <a
-                          href="/downgrade.html"
+                          href="/downgrade"
                           className="cursor-target mt-5 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-pink-500 to-orange-500 hover:from-pink-600 hover:to-orange-600 hover:scale-[1.02] transition-all animate-pulse"
                           style={{ boxShadow: '0 4px 20px rgba(236, 72, 153, 0.4)' }}
                         >

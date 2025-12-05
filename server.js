@@ -130,15 +130,19 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.get('/information.html', (req, res) => {
+app.get('/information', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'information.html'));
 });
 
-app.get('/terms.html', (req, res) => {
+app.get('/downgrade', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'downgrade.html'));
+});
+
+app.get('/terms', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'terms.html'));
 });
 
-app.get('/privacy.html', (req, res) => {
+app.get('/privacy', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'privacy.html'));
 });
 
