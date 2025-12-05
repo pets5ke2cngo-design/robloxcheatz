@@ -35,6 +35,11 @@ const buildConfigs = [
     entryPoints: ['src/info.tsx'],
     outfile: 'public/dist/info-bundle.js',
   },
+  {
+    ...commonOptions,
+    entryPoints: ['src/downgrade.tsx'],
+    outfile: 'public/dist/downgrade-bundle.js',
+  },
 ];
 
 async function build() {
