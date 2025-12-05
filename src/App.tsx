@@ -8,6 +8,9 @@ import GradientText from './components/GradientText';
 import AnimatedLogo from './components/AnimatedLogo';
 import { AnimationReadyProvider } from './components/AnimationReadyProvider';
 import GlareHover from './components/GlareHover';
+import UNCModal from './components/UNCModal';
+import { ThemeProvider, useTheme, themes } from './components/ThemeContext';
+import ThemeSwitcher from './components/ThemeSwitcherNew';
 
 interface Product {
   id: string;
@@ -77,6 +80,8 @@ const colorSchemes = {
     buttonGradient: 'from-blue-500 to-white',
     buttonShadow: 'rgba(59, 130, 246, 0.4)',
     isExternal: false,
+    backgroundImage: '/wave.png',
+    bgIconSize: '40px',
   },
   seliware: {
     borderColor: '#ec4899',
@@ -87,6 +92,8 @@ const colorSchemes = {
     buttonGradient: 'from-pink-500 to-cyan-400',
     buttonShadow: 'rgba(236, 72, 153, 0.4)',
     isExternal: false,
+    backgroundImage: '/seliware.png',
+    bgIconSize: '40px',
   },
   matcha: {
     borderColor: '#84cc16',
@@ -97,6 +104,8 @@ const colorSchemes = {
     buttonGradient: 'from-green-500 to-lime-400',
     buttonShadow: 'rgba(132, 204, 22, 0.4)',
     isExternal: true,
+    backgroundImage: '/matcha.png',
+    bgIconSize: '40px',
   },
 };
 
@@ -104,9 +113,10 @@ interface MainCardProps {
   product: Product;
   exploitData: ExploitData | null;
   colorScheme?: ColorScheme;
+  onUNCClick?: (exploitName: string, testType: 'sunc' | 'unc', percentage: number | null) => void;
 }
 
-const MainCard: React.FC<MainCardProps> = ({ product, exploitData, colorScheme = 'wave' }) => {
+const MainCard: React.FC<MainCardProps> = ({ product, exploitData, colorScheme = 'wave', onUNCClick }) => {
   const status = exploitData?.updateStatus ? 'online' : 'offline';
   const statusText = status === 'online' ? 'Updated' : 'Down';
   const version = exploitData?.version || null;
@@ -126,7 +136,23 @@ const MainCard: React.FC<MainCardProps> = ({ product, exploitData, colorScheme =
       className="h-[340px] rounded-2xl cursor-target"
       style={{ background: 'rgba(17, 17, 22, 0.9)', borderRadius: '16px' }}
     >
-      <div className="p-6 pb-5 h-full flex flex-col">
+      <div className="relative h-full w-full overflow-hidden rounded-2xl">
+        {/* Background pattern with tilted grid of small icons */}
+        <div 
+          className="absolute inset-0"
+          style={{ 
+            backgroundImage: `url(${scheme.backgroundImage})`,
+            backgroundSize: scheme.bgIconSize,
+            backgroundPosition: 'center',
+            backgroundRepeat: 'space',
+            opacity: 0.06,
+            filter: 'grayscale(100%)',
+            pointerEvents: 'none',
+            transform: 'rotate(-15deg) scale(1.5)',
+            transformOrigin: 'center center',
+          }}
+        />
+        <div className="p-6 pb-5 h-full flex flex-col relative z-10">
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-xl font-bold text-white">{product.name}</h3>
           <div
@@ -155,55 +181,71 @@ const MainCard: React.FC<MainCardProps> = ({ product, exploitData, colorScheme =
             </span>
             <span className="font-semibold text-white">{formatValue(version)}</span>
           </div>
-          <div className="flex justify-between items-center">
+          <div 
+            className={`flex justify-between items-center -mx-2 px-2 py-1 rounded-lg transition-colors ${uncPercentage !== null ? 'cursor-target hover:bg-white/5' : ''}`}
+            onClick={() => uncPercentage !== null && onUNCClick && onUNCClick(product.apiName, 'unc', uncPercentage)}
+          >
             <span className="flex items-center gap-1.5">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke={scheme.iconColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
               </svg>
               UNC
+              {uncPercentage !== null && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke={scheme.iconColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 opacity-50">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+              )}
             </span>
             <span className="font-semibold text-white">{formatValue(uncPercentage, '%')}</span>
           </div>
-          <div className="flex justify-between items-center">
+          <div 
+            className={`flex justify-between items-center -mx-2 px-2 py-1 rounded-lg transition-colors ${suncPercentage !== null ? 'cursor-target hover:bg-white/5' : ''}`}
+            onClick={() => suncPercentage !== null && onUNCClick && onUNCClick(product.apiName, 'sunc', suncPercentage)}
+          >
             <span className="flex items-center gap-1.5">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke={scheme.iconColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                 <path d="M9 12l2 2 4-4"/><path d="M12 2a10 10 0 1 0 10 10"/>
               </svg>
               SUNC
+              {suncPercentage !== null && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke={scheme.iconColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 opacity-50">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                </svg>
+              )}
             </span>
             <span className="font-semibold text-white">{formatValue(suncPercentage, '%')}</span>
           </div>
         </div>
 
         <div className="mt-auto">
-          {!scheme.isExternal ? (
-            <div className="flex flex-wrap gap-1.5 mt-4 mb-4">
-              <span
-                className={`px-2 py-1 rounded-md text-[0.7rem] font-medium ${
-                  hasDecompiler
-                    ? `${scheme.accentBg} ${scheme.accentBorder} ${scheme.accentText}`
-                    : 'bg-white/5 border border-white/10 text-gray-500'
-                }`}
-              >
-                Decompiler
-              </span>
-              <span
-                className={`px-2 py-1 rounded-md text-[0.7rem] font-medium ${
-                  hasMultiInject
-                    ? `${scheme.accentBg} ${scheme.accentBorder} ${scheme.accentText}`
-                    : 'bg-white/5 border border-white/10 text-gray-500'
-                }`}
-              >
-                Multi-Instance
-              </span>
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-1.5 mt-4 mb-4">
+          <div className="flex flex-wrap gap-1.5 mt-4 mb-4 min-h-[28px]">
+            {!scheme.isExternal ? (
+              <>
+                <span
+                  className={`px-2 py-1 rounded-md text-[0.7rem] font-medium ${
+                    hasDecompiler
+                      ? `${scheme.accentBg} ${scheme.accentBorder} ${scheme.accentText}`
+                      : 'bg-white/5 border border-white/10 text-gray-500'
+                  }`}
+                >
+                  Decompiler
+                </span>
+                <span
+                  className={`px-2 py-1 rounded-md text-[0.7rem] font-medium ${
+                    hasMultiInject
+                      ? `${scheme.accentBg} ${scheme.accentBorder} ${scheme.accentText}`
+                      : 'bg-white/5 border border-white/10 text-gray-500'
+                  }`}
+                >
+                  Multi-Instance
+                </span>
+              </>
+            ) : (
               <span className={`px-2 py-1 rounded-md text-[0.7rem] font-medium ${scheme.accentBg} ${scheme.accentBorder} ${scheme.accentText}`}>
                 External
               </span>
-            </div>
-          )}
+            )}
+          </div>
 
           <div className="flex flex-col gap-2.5">
             <div className="flex gap-2.5">
@@ -257,6 +299,7 @@ const MainCard: React.FC<MainCardProps> = ({ product, exploitData, colorScheme =
           </div>
         </div>
       </div>
+      </div>
     </ElectricBorder>
   );
 };
@@ -264,9 +307,10 @@ const MainCard: React.FC<MainCardProps> = ({ product, exploitData, colorScheme =
 interface OtherCardProps {
   product: Product;
   exploitData: ExploitData | null;
+  onUNCClick?: (exploitName: string, testType: 'sunc' | 'unc', percentage: number | null) => void;
 }
 
-const OtherCard: React.FC<OtherCardProps> = ({ product, exploitData }) => {
+const OtherCard: React.FC<OtherCardProps> = ({ product, exploitData, onUNCClick }) => {
   const status = exploitData?.updateStatus ? 'online' : 'offline';
   const statusText = status === 'online' ? 'Online' : 'Down';
   const version = exploitData?.version || null;
@@ -274,13 +318,6 @@ const OtherCard: React.FC<OtherCardProps> = ({ product, exploitData }) => {
   const suncPercentage = exploitData?.suncPercentage ?? null;
   const hasDecompiler = exploitData?.decompiler ?? false;
   const hasMultiInject = exploitData?.multiInject ?? false;
-
-  const uncSunc =
-    uncPercentage === null && suncPercentage === null ? (
-      <XIcon />
-    ) : (
-      `${uncPercentage !== null ? `${uncPercentage}%` : '-'}/${suncPercentage !== null ? `${suncPercentage}%` : '-'}`
-    );
 
   return (
     <SpotlightCard
@@ -316,14 +353,36 @@ const OtherCard: React.FC<OtherCardProps> = ({ product, exploitData }) => {
             </span>
             <span className="font-semibold text-white">{formatValue(version)}</span>
           </div>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-2">
             <span className="flex items-center gap-1.5">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#ff0ae2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
               </svg>
               UNC/SUNC
             </span>
-            <span className="font-semibold text-white">{uncSunc}</span>
+            <div className="flex items-center gap-1">
+              {uncPercentage !== null ? (
+                <button
+                  onClick={() => onUNCClick && onUNCClick(product.apiName, 'unc', uncPercentage)}
+                  className="cursor-target font-semibold text-white hover:text-blue-400 transition-colors"
+                >
+                  {uncPercentage}%
+                </button>
+              ) : (
+                <span className="text-gray-500">-</span>
+              )}
+              <span className="text-gray-500">/</span>
+              {suncPercentage !== null ? (
+                <button
+                  onClick={() => onUNCClick && onUNCClick(product.apiName, 'sunc', suncPercentage)}
+                  className="cursor-target font-semibold text-white hover:text-pink-400 transition-colors"
+                >
+                  {suncPercentage}%
+                </button>
+              ) : (
+                <span className="text-gray-500">-</span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -503,9 +562,10 @@ const ExternalCard: React.FC<ExternalCardProps> = ({ product, exploitData }) => 
 interface AndroidCardProps {
   product: Product;
   exploitData: ExploitData | null;
+  onUNCClick?: (exploitName: string, testType: 'sunc' | 'unc', percentage: number | null) => void;
 }
 
-const AndroidCard: React.FC<AndroidCardProps> = ({ product, exploitData }) => {
+const AndroidCard: React.FC<AndroidCardProps> = ({ product, exploitData, onUNCClick }) => {
   const status = exploitData?.updateStatus ? 'online' : 'offline';
   const statusText = status === 'online' ? 'Online' : 'Down';
   const version = exploitData?.version || null;
@@ -513,13 +573,6 @@ const AndroidCard: React.FC<AndroidCardProps> = ({ product, exploitData }) => {
   const suncPercentage = exploitData?.suncPercentage ?? null;
   const hasDecompiler = exploitData?.decompiler ?? false;
   const hasMultiInject = exploitData?.multiInject ?? false;
-
-  const uncSunc =
-    uncPercentage === null && suncPercentage === null ? (
-      <XIcon />
-    ) : (
-      `${uncPercentage !== null ? `${uncPercentage}%` : '-'}/${suncPercentage !== null ? `${suncPercentage}%` : '-'}`
-    );
 
   return (
     <SpotlightCard
@@ -555,14 +608,36 @@ const AndroidCard: React.FC<AndroidCardProps> = ({ product, exploitData }) => {
             </span>
             <span className="font-semibold text-white">{formatValue(version)}</span>
           </div>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-2">
             <span className="flex items-center gap-1.5">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
               </svg>
               UNC/SUNC
             </span>
-            <span className="font-semibold text-white">{uncSunc}</span>
+            <div className="flex items-center gap-1">
+              {uncPercentage !== null ? (
+                <button
+                  onClick={() => onUNCClick && onUNCClick(product.apiName, 'unc', uncPercentage)}
+                  className="cursor-target font-semibold text-white hover:text-blue-400 transition-colors"
+                >
+                  {uncPercentage}%
+                </button>
+              ) : (
+                <span className="text-gray-500">-</span>
+              )}
+              <span className="text-gray-500">/</span>
+              {suncPercentage !== null ? (
+                <button
+                  onClick={() => onUNCClick && onUNCClick(product.apiName, 'sunc', suncPercentage)}
+                  className="cursor-target font-semibold text-white hover:text-pink-400 transition-colors"
+                >
+                  {suncPercentage}%
+                </button>
+              ) : (
+                <span className="text-gray-500">-</span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -655,10 +730,30 @@ const SkeletonCard: React.FC<{ isMain?: boolean }> = ({ isMain = false }) => (
   </div>
 );
 
-const App: React.FC = () => {
+// Inner App component that uses theme
+const AppContent: React.FC = () => {
+  const { theme } = useTheme();
   const [productsData, setProductsData] = useState<ProductsData | null>(null);
   const [exploitCache, setExploitCache] = useState<Record<string, ExploitData>>({});
   const [loading, setLoading] = useState(true);
+  
+  // UNC Modal state
+  const [uncModalOpen, setUncModalOpen] = useState(false);
+  const [uncModalData, setUncModalData] = useState<{
+    exploitName: string;
+    testType: 'sunc' | 'unc';
+    percentage: number | null;
+  } | null>(null);
+
+  const handleUNCClick = (exploitName: string, testType: 'sunc' | 'unc', percentage: number | null) => {
+    setUncModalData({ exploitName, testType, percentage });
+    setUncModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setUncModalOpen(false);
+    setUncModalData(null);
+  };
 
   const loadProducts = async () => {
     try {
@@ -738,7 +833,10 @@ const App: React.FC = () => {
 
   return (
     <AnimationReadyProvider minDelay={400}>
-    <div className="min-h-screen bg-[#08080c] text-white font-sans antialiased overflow-x-hidden">
+    <div 
+      className="min-h-screen text-white font-sans antialiased overflow-x-hidden transition-colors duration-700"
+      style={{ backgroundColor: theme.colors.background }}
+    >
       <TargetCursor 
         targetSelector=".cursor-target"
         spinDuration={2}
@@ -749,11 +847,12 @@ const App: React.FC = () => {
 
       <div className="fixed inset-0 z-0 pointer-events-none" style={{ willChange: 'transform', contain: 'strict' }}>
         <Particles
+          key={`particles-${theme.id}`}
           particleCount={100}
           particleSpread={10}
           speed={0.05}
           particleBaseSize={80}
-          particleColors={['#ff0ae2']}
+          particleColors={[theme.colors.primary]}
           moveParticlesOnHover={true}
           particleHoverFactor={1}
           alphaParticles={false}
@@ -764,8 +863,20 @@ const App: React.FC = () => {
         />
       </div>
 
-      <div className="fixed top-[-200px] right-[-200px] w-[800px] h-[800px] bg-gradient-radial from-pink-500 to-transparent opacity-30 rounded-full pointer-events-none z-[-1]" style={{ willChange: 'transform' }} />
-      <div className="fixed bottom-[-200px] left-[-200px] w-[700px] h-[700px] bg-gradient-radial from-blue-500 to-transparent opacity-25 rounded-full pointer-events-none z-[-1]" style={{ willChange: 'transform' }} />
+      <div 
+        className="fixed top-[-200px] right-[-200px] w-[800px] h-[800px] rounded-full pointer-events-none z-[-1] transition-all duration-700" 
+        style={{ 
+          background: `radial-gradient(circle, ${theme.colors.primary}40, transparent)`,
+          willChange: 'transform' 
+        }} 
+      />
+      <div 
+        className="fixed bottom-[-200px] left-[-200px] w-[700px] h-[700px] rounded-full pointer-events-none z-[-1] transition-all duration-700" 
+        style={{ 
+          background: `radial-gradient(circle, ${theme.colors.accent}35, transparent)`,
+          willChange: 'transform' 
+        }} 
+      />
 
       <header className="fixed top-0 left-0 right-0 h-[100px] z-50 flex items-center justify-between px-6 pointer-events-none">
         <div className="pointer-events-auto">
@@ -797,7 +908,7 @@ const App: React.FC = () => {
         <div className="text-center mb-8">
           <GradientText 
             className="text-4xl md:text-5xl font-black"
-            colors={['#ff0ae2', '#9c40ff', '#3b82f6', '#ff0ae2']}
+            colors={theme.gradientColors}
             animationSpeed={6}
           >
             Product Statuses
@@ -824,6 +935,7 @@ const App: React.FC = () => {
                         product={product}
                         exploitData={exploitData}
                         colorScheme={product.id as ColorScheme}
+                        onUNCClick={handleUNCClick}
                       />
                       {isDown && product.id === 'wave' && (
                         <a
@@ -870,6 +982,7 @@ const App: React.FC = () => {
                       key={product.id}
                       product={product}
                       exploitData={getExploitFromCache(product.apiName)}
+                      onUNCClick={handleUNCClick}
                     />
                   ))}
             </div>
@@ -904,6 +1017,7 @@ const App: React.FC = () => {
                       key={product.id}
                       product={product}
                       exploitData={getExploitFromCache(product.apiName)}
+                      onUNCClick={handleUNCClick}
                     />
                   ))}
             </div>
@@ -911,13 +1025,29 @@ const App: React.FC = () => {
         </section>
       </main>
 
+      {/* Theme Switcher - Above Footer */}
+      <div className="flex justify-center pb-8 relative z-10">
+        <ThemeSwitcher />
+      </div>
+
       <footer className="border-t border-white/10 py-8 px-6 bg-black/40 backdrop-blur-xl relative z-10">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
           <div className="flex gap-6">
-            <a href="/terms.html" className="cursor-target text-gray-500 text-sm hover:text-pink-500 transition-colors">
+            <a 
+              href="/terms.html" 
+              className="cursor-target text-gray-500 text-sm transition-colors"
+              style={{ '--hover-color': theme.colors.primary } as React.CSSProperties}
+              onMouseEnter={(e) => e.currentTarget.style.color = theme.colors.primary}
+              onMouseLeave={(e) => e.currentTarget.style.color = ''}
+            >
               Terms of Service
             </a>
-            <a href="/privacy.html" className="cursor-target text-gray-500 text-sm hover:text-pink-500 transition-colors">
+            <a 
+              href="/privacy.html" 
+              className="cursor-target text-gray-500 text-sm transition-colors"
+              onMouseEnter={(e) => e.currentTarget.style.color = theme.colors.primary}
+              onMouseLeave={(e) => e.currentTarget.style.color = ''}
+            >
               Privacy Policy
             </a>
           </div>
@@ -926,8 +1056,26 @@ const App: React.FC = () => {
           </p>
         </div>
       </footer>
+
+      {/* UNC Modal */}
+      <UNCModal
+        isOpen={uncModalOpen}
+        onClose={handleCloseModal}
+        exploitName={uncModalData?.exploitName || ''}
+        testType={uncModalData?.testType || 'sunc'}
+        percentage={uncModalData?.percentage ?? null}
+      />
     </div>
     </AnimationReadyProvider>
+  );
+};
+
+// Main App wrapper with ThemeProvider
+const App: React.FC = () => {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 };
 

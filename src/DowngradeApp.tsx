@@ -6,6 +6,8 @@ import Dock from './components/Dock';
 import GradientText from './components/GradientText';
 import AnimatedLogo from './components/AnimatedLogo';
 import { AnimationReadyProvider } from './components/AnimationReadyProvider';
+import { ThemeProvider, useTheme } from './components/ThemeContext';
+import ThemeSwitcher from './components/ThemeSwitcherNew';
 
 interface DowngradeCardProps {
   title: string;
@@ -62,7 +64,8 @@ const _0x = (s: string) => atob(s);
 const _d = ['d2Vhby5nZw==', 'd2Vhby54eXo=', 'd2hhdGV4cHNhcmUub25saW5l', 'd2hhdGV4cGxvaXRzYXJldHJhLnNo'];
 const _r = 'cmRkLndlYW8uZ2c=';
 
-const DowngradeApp: React.FC = () => {
+const DowngradeContent: React.FC = () => {
+  const { theme, themeId } = useTheme();
   const [previousVersion, setPreviousVersion] = useState('version-e380c8edc8f6477c');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -216,7 +219,7 @@ const DowngradeApp: React.FC = () => {
 
   return (
     <AnimationReadyProvider minDelay={400}>
-    <div className="min-h-screen bg-[#08080c] text-white font-sans antialiased overflow-x-hidden">
+    <div className="min-h-screen text-white font-sans antialiased overflow-x-hidden" style={{ backgroundColor: theme.colors.background }}>
       <TargetCursor 
         targetSelector=".cursor-target"
         spinDuration={2}
@@ -227,11 +230,12 @@ const DowngradeApp: React.FC = () => {
 
       <div className="fixed inset-0 z-0 pointer-events-none" style={{ willChange: 'transform', contain: 'strict' }}>
         <Particles
+          key={`particles-${themeId}`}
           particleCount={100}
           particleSpread={10}
           speed={0.05}
           particleBaseSize={80}
-          particleColors={['#ff0ae2']}
+          particleColors={[theme.colors.primary]}
           moveParticlesOnHover={true}
           particleHoverFactor={1}
           alphaParticles={false}
@@ -242,8 +246,8 @@ const DowngradeApp: React.FC = () => {
         />
       </div>
 
-      <div className="fixed top-[-200px] right-[-200px] w-[800px] h-[800px] bg-gradient-radial from-pink-500 to-transparent opacity-30 rounded-full pointer-events-none z-[-1]" style={{ willChange: 'transform' }} />
-      <div className="fixed bottom-[-200px] left-[-200px] w-[700px] h-[700px] bg-gradient-radial from-blue-500 to-transparent opacity-25 rounded-full pointer-events-none z-[-1]" style={{ willChange: 'transform' }} />
+      <div className="fixed top-[-200px] right-[-200px] w-[800px] h-[800px] bg-gradient-radial to-transparent opacity-30 rounded-full pointer-events-none z-[-1]" style={{ willChange: 'transform', background: `radial-gradient(circle, ${theme.colors.primary}60 0%, transparent 70%)` }} />
+      <div className="fixed bottom-[-200px] left-[-200px] w-[700px] h-[700px] bg-gradient-radial to-transparent opacity-25 rounded-full pointer-events-none z-[-1]" style={{ willChange: 'transform', background: `radial-gradient(circle, ${theme.colors.accent}60 0%, transparent 70%)` }} />
 
       <header className="fixed top-0 left-0 right-0 h-[100px] z-50 flex items-center justify-between px-6 pointer-events-none">
         <div className="pointer-events-auto">
@@ -275,7 +279,7 @@ const DowngradeApp: React.FC = () => {
         <div className="text-center mb-12">
           <GradientText 
             className="text-4xl md:text-5xl font-black leading-relaxed relative z-10"
-            colors={['#ff0ae2', '#9c40ff', '#3b82f6', '#ff0ae2']}
+            colors={theme.gradientColors}
             animationSpeed={6}
           >
             How to Downgrade
@@ -476,20 +480,31 @@ const DowngradeApp: React.FC = () => {
           {/* Back Button */}
           <button
             onClick={() => window.location.href = '/'}
-            className="cursor-target mt-6 px-8 py-4 bg-gradient-to-r from-pink-500 to-blue-500 text-white font-semibold rounded-xl hover:from-pink-400 hover:to-blue-400 transition-all duration-300 hover:-translate-y-1 shadow-lg shadow-pink-500/30 hover:shadow-pink-500/50"
+            className="cursor-target mt-6 px-8 py-4 text-white font-semibold rounded-xl transition-all duration-300 hover:-translate-y-1"
+            style={{ 
+              background: `linear-gradient(to right, ${theme.colors.primary}, ${theme.colors.accent})`,
+              boxShadow: `0 10px 15px -3px ${theme.colors.primary}30`
+            }}
           >
             Back to Main Page
           </button>
         </div>
       </main>
 
+      {/* Theme Switcher Section */}
+      <div className="py-8 relative z-10">
+        <div className="max-w-7xl mx-auto px-6 flex justify-center">
+          <ThemeSwitcher />
+        </div>
+      </div>
+
       <footer className="border-t border-white/10 py-8 px-6 bg-black/40 backdrop-blur-xl relative z-10">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
           <div className="flex gap-6">
-            <a href="/terms.html" className="cursor-target text-gray-500 text-sm hover:text-pink-500 transition-colors">
+            <a href="/terms.html" className="cursor-target text-gray-500 text-sm transition-colors" onMouseOver={(e) => e.currentTarget.style.color = theme.colors.primary} onMouseOut={(e) => e.currentTarget.style.color = '#6b7280'}>
               Terms of Service
             </a>
-            <a href="/privacy.html" className="cursor-target text-gray-500 text-sm hover:text-pink-500 transition-colors">
+            <a href="/privacy.html" className="cursor-target text-gray-500 text-sm transition-colors" onMouseOver={(e) => e.currentTarget.style.color = theme.colors.primary} onMouseOut={(e) => e.currentTarget.style.color = '#6b7280'}>
               Privacy Policy
             </a>
           </div>
@@ -502,5 +517,11 @@ const DowngradeApp: React.FC = () => {
     </AnimationReadyProvider>
   );
 };
+
+const DowngradeApp: React.FC = () => (
+  <ThemeProvider>
+    <DowngradeContent />
+  </ThemeProvider>
+);
 
 export default DowngradeApp;

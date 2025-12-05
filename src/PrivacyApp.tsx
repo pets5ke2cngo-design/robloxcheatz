@@ -6,8 +6,12 @@ import Dock from './components/Dock';
 import GradientText from './components/GradientText';
 import AnimatedLogo from './components/AnimatedLogo';
 import { AnimationReadyProvider } from './components/AnimationReadyProvider';
+import { ThemeProvider, useTheme } from './components/ThemeContext';
+import ThemeSwitcher from './components/ThemeSwitcherNew';
 
-const PrivacyApp: React.FC = () => {
+const PrivacyContent: React.FC = () => {
+  const { theme, themeId } = useTheme();
+  
   const dockItems = [
     { 
       icon: <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
@@ -28,7 +32,7 @@ const PrivacyApp: React.FC = () => {
 
   return (
     <AnimationReadyProvider minDelay={400}>
-    <div className="min-h-screen bg-[#08080c] text-white font-sans antialiased overflow-x-hidden">
+    <div className="min-h-screen text-white font-sans antialiased overflow-x-hidden" style={{ backgroundColor: theme.colors.background }}>
       <TargetCursor 
         targetSelector=".cursor-target"
         spinDuration={2}
@@ -39,11 +43,12 @@ const PrivacyApp: React.FC = () => {
 
       <div className="fixed inset-0 z-0 pointer-events-none" style={{ willChange: 'transform', contain: 'strict' }}>
         <Particles
+          key={`particles-${themeId}`}
           particleCount={100}
           particleSpread={10}
           speed={0.05}
           particleBaseSize={80}
-          particleColors={['#ff0ae2']}
+          particleColors={[theme.colors.primary]}
           moveParticlesOnHover={true}
           particleHoverFactor={1}
           alphaParticles={false}
@@ -54,8 +59,8 @@ const PrivacyApp: React.FC = () => {
         />
       </div>
 
-      <div className="fixed top-[-200px] right-[-200px] w-[800px] h-[800px] bg-gradient-radial from-pink-500 to-transparent opacity-30 rounded-full pointer-events-none z-[-1]" style={{ willChange: 'transform' }} />
-      <div className="fixed bottom-[-200px] left-[-200px] w-[700px] h-[700px] bg-gradient-radial from-blue-500 to-transparent opacity-25 rounded-full pointer-events-none z-[-1]" style={{ willChange: 'transform' }} />
+      <div className="fixed top-[-200px] right-[-200px] w-[800px] h-[800px] bg-gradient-radial to-transparent opacity-30 rounded-full pointer-events-none z-[-1]" style={{ willChange: 'transform', background: `radial-gradient(circle, ${theme.colors.primary}60 0%, transparent 70%)` }} />
+      <div className="fixed bottom-[-200px] left-[-200px] w-[700px] h-[700px] bg-gradient-radial to-transparent opacity-25 rounded-full pointer-events-none z-[-1]" style={{ willChange: 'transform', background: `radial-gradient(circle, ${theme.colors.accent}60 0%, transparent 70%)` }} />
 
       <header className="fixed top-0 left-0 right-0 h-[100px] z-50 flex items-center justify-between px-6 pointer-events-none">
         <div className="pointer-events-auto">
@@ -87,7 +92,7 @@ const PrivacyApp: React.FC = () => {
         <div className="text-center mb-12">
           <GradientText 
             className="text-4xl md:text-5xl font-black leading-relaxed relative z-10"
-            colors={['#ff0ae2', '#9c40ff', '#3b82f6', '#ff0ae2']}
+            colors={theme.gradientColors}
             animationSpeed={6}
           >
             Privacy Policy
@@ -241,19 +246,27 @@ const PrivacyApp: React.FC = () => {
         <div className="mt-12 text-center">
           <a 
             href="/terms" 
-            className="cursor-target text-pink-400 hover:text-pink-300 transition-colors underline underline-offset-4"
+            className="cursor-target underline underline-offset-4 transition-colors"
+            style={{ color: theme.colors.primary }}
           >
             View Terms of Service →
           </a>
         </div>
       </main>
 
+      {/* Theme Switcher Section */}
+      <div className="py-8 relative z-10">
+        <div className="max-w-7xl mx-auto px-6 flex justify-center">
+          <ThemeSwitcher />
+        </div>
+      </div>
+
       <footer className="py-8 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6 text-center text-gray-500 text-sm">
           <p>© 2024 RobloxCheatz. All rights reserved.</p>
           <div className="mt-2 flex justify-center gap-4">
-            <a href="/privacy" className="cursor-target hover:text-pink-400 transition-colors">Privacy Policy</a>
-            <a href="/terms" className="cursor-target hover:text-pink-400 transition-colors">Terms of Service</a>
+            <a href="/privacy" className="cursor-target transition-colors" style={{ color: 'inherit' }} onMouseOver={(e) => e.currentTarget.style.color = theme.colors.primary} onMouseOut={(e) => e.currentTarget.style.color = 'inherit'}>Privacy Policy</a>
+            <a href="/terms" className="cursor-target transition-colors" style={{ color: 'inherit' }} onMouseOver={(e) => e.currentTarget.style.color = theme.colors.primary} onMouseOut={(e) => e.currentTarget.style.color = 'inherit'}>Terms of Service</a>
           </div>
         </div>
       </footer>
@@ -261,5 +274,11 @@ const PrivacyApp: React.FC = () => {
     </AnimationReadyProvider>
   );
 };
+
+const PrivacyApp: React.FC = () => (
+  <ThemeProvider>
+    <PrivacyContent />
+  </ThemeProvider>
+);
 
 export default PrivacyApp;
