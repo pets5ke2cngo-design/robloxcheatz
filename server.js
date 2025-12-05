@@ -365,14 +365,26 @@ app.get('/api/unc-test/:name', strictLimiter, async (req, res) => {
     // Fetch from source
     const response = await fetch(
       `https://${_src.h}${_src.p}${_xName}.json`,
-      { headers: { 'User-Agent': 'Mozilla/5.0' } }
+      { 
+        headers: { 
+          'User-Agent': 'Mozilla/5.0',
+          'Accept': 'text/plain, */*'
+        } 
+      }
     );
     
     if (!response.ok) {
+      console.error(`Failed to fetch test data: ${response.status} ${response.statusText}`);
       return res.status(404).json({ error: 'Test data not available' });
     }
     
     const rawText = await response.text();
+    
+    if (!rawText || rawText.length < 100) {
+      console.error('Empty or invalid test data received');
+      return res.status(404).json({ error: 'Test data not available' });
+    }
+    
     const parsedData = _parseTestData(rawText, name, testType);
     
     // Cache result
