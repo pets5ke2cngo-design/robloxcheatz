@@ -8,6 +8,7 @@ import AnimatedLogo from './components/AnimatedLogo';
 import { AnimationReadyProvider } from './components/AnimationReadyProvider';
 import { ThemeProvider, useTheme } from './components/ThemeContext';
 import ThemeSwitcher from './components/ThemeSwitcherNew';
+import WinterDecorations from './components/WinterDecorations';
 
 const PrivacyContent: React.FC = () => {
   const { theme, themeId } = useTheme();
@@ -277,6 +278,7 @@ const PrivacyContent: React.FC = () => {
 
 const PrivacyApp: React.FC = () => (
   <ThemeProvider>
+    <WinterDecorations />
     <PrivacyContent />
   </ThemeProvider>
 );

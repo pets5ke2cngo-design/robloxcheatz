@@ -4,38 +4,57 @@
       "id": "wave",
       "name": "Wave",
       "apiName": "wave",
-      "buyLink": "",
-      "viewLink": ""
+      "buyLink": "https://robloxcheatz.com/product?id=6d1f91b5-4599-467a-b9ba-eadef98c63fe&ref=robloxcheatzonline",
+      "viewLink": "https://www.youtube.com/watch?v=AhjYYRjyndY",
+      "discordLink": "https://discord.gg/8CfMBXqW",
+      "icon": "/wave.png"
     },
     {
       "id": "seliware",
       "name": "Seliware",
       "apiName": "seliware",
-      "buyLink": "",
-      "viewLink": ""
+      "buyLink": "https://robloxcheatz.com/product?id=51c9587f-4794-46ef-b6bf-2bd9f13c17d2&ref=robloxcheatzonline",
+      "viewLink": "https://www.youtube.com/watch?v=J3E9t9Kn6E4",
+      "discordLink": "https://discord.gg/9XMUDWzm2W",
+      "icon": "/seliware.png"
     },
     {
       "id": "matcha",
       "name": "Matcha",
       "apiName": "matcha",
-      "buyLink": "",
-      "viewLink": ""
+      "buyLink": "https://robloxcheatz.com/product?id=matcha&ref=robloxcheatzonline",
+      "viewLink": "https://youtu.be/7TpV3G69x1I?si=cMwiD-4XfB6Au94W",
+      "discordLink": "https://discord.gg/matchalattewin",
+      "icon": "/matcha.png"
     }
   ],
   "otherProducts": [
     {
+      "id": "volt",
+      "name": "Volt",
+      "apiName": "volt",
+      "buyLink": "https://robloxcheatz.com/product?id=4c896fbc-e361-4d09-a8e8-f0064befc4d1&ref=robloxcheatzonline",
+      "viewLink": "",
+      "discordLink": "https://discord.gg/ggawp",
+      "icon": "/volt.png"
+    },
+    {
       "id": "potassium",
       "name": "Potassium",
       "apiName": "potassium",
-      "buyLink": "",
-      "viewLink": ""
+      "buyLink": "https://robloxcheatz.com/product?id=potassium&ref=robloxcheatzonline",
+      "viewLink": "",
+      "discordLink": "https://discord.gg/potassium",
+      "icon": "/potassium.png"
     },
     {
       "id": "bunni",
       "name": "Bunni",
       "apiName": "bunni.lol",
-      "buyLink": "",
-      "viewLink": ""
+      "buyLink": "https://robloxcheatz.com/product?id=178fa9f7-f297-41d2-b654-274ed11d3b54&ref=robloxcheatzonline",
+      "viewLink": "",
+      "discordLink": "https://discord.gg/bunnilol",
+      "icon": "/bunni.png"
     }
   ],
   "externalProducts": [
@@ -43,29 +62,37 @@
       "id": "serotonin",
       "name": "Serotonin",
       "apiName": "serotonin",
-      "buyLink": "",
-      "viewLink": ""
+      "buyLink": "https://robloxcheatz.com/product?id=serotonin&ref=robloxcheatzonline",
+      "viewLink": "",
+      "discordLink": "https://discord.gg/serotonin",
+      "icon": "/serotonin.png"
     },
     {
       "id": "isabelle",
       "name": "Isabelle",
       "apiName": "isabelle",
-      "buyLink": "",
-      "viewLink": ""
+      "buyLink": "https://robloxcheatz.com/product?id=isabelle&ref=robloxcheatzonline",
+      "viewLink": "",
+      "discordLink": "https://discord.gg/isabelle",
+      "icon": "/isabelle.png"
     },
     {
       "id": "ronin",
       "name": "Ronin",
       "apiName": "ronin",
-      "buyLink": "",
-      "viewLink": ""
+      "buyLink": "https://robloxcheatz.com/product?id=d85e5584-8469-4bd3-be6a-1f616f2959dd&ref=robloxcheatzonline",
+      "viewLink": "",
+      "discordLink": "https://discord.gg/fdMzh3hh8g",
+      "icon": "/ronin.png"
     },
     {
       "id": "yerba",
       "name": "Yerba",
       "apiName": "yerba",
-      "buyLink": "",
-      "viewLink": ""
+      "buyLink": "https://robloxcheatz.com/product?id=yerba&ref=robloxcheatzonline",
+      "viewLink": "",
+      "discordLink": "https://discord.gg/yerba",
+      "icon": "/yerba.png"
     }
   ],
   "androidProducts": [
@@ -73,15 +100,19 @@
       "id": "codex",
       "name": "Codex",
       "apiName": "codex",
-      "buyLink": "",
-      "viewLink": ""
+      "buyLink": "https://robloxcheatz.com/product?id=17ca258e-251f-44c6-b89d-601c335d1b9e&ref=robloxcheatzonline",
+      "viewLink": "",
+      "discordLink": "https://discord.gg/codexlol",
+      "icon": "/codex.png"
     },
     {
       "id": "arceus",
       "name": "Arceus X V5",
       "apiName": "arceus x v5",
-      "buyLink": "",
-      "viewLink": ""
+      "buyLink": "https://robloxcheatz.com/product?id=arceusxv5&ref=robloxcheatzonline",
+      "viewLink": "",
+      "discordLink": "https://discord.gg/tGJMQnu3",
+      "icon": "/arcues.png"
     }
   ]
 }

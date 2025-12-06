@@ -11,6 +11,7 @@ import GlareHover from './components/GlareHover';
 import UNCModal from './components/UNCModal';
 import { ThemeProvider, useTheme, themes } from './components/ThemeContext';
 import ThemeSwitcher from './components/ThemeSwitcherNew';
+import WinterDecorations from './components/WinterDecorations';
 
 // Inject flowing background animation styles
 const injectFlowingStyles = () => {
@@ -94,7 +95,8 @@ interface Product {
   apiName: string;
   buyLink: string;
   viewLink: string;
-  discordLink: string;
+  discordLink?: string;
+  icon?: string;
 }
 
 interface ProductsData {
@@ -188,7 +190,7 @@ const AnimatedBuyButton: React.FC<AnimatedBuyButtonProps> = ({ price, href, grad
         <ShinyText text={displayPrice || ''} shineColor={shineColor} />
       </span>
       
-      {/* Buy text with icon (on hover or if no price) */}
+      {/* Buy/Get text with icon (on hover or if no price) */}
       <span 
         className={`flex items-center gap-1.5 transition-all duration-300 ${
           hasPrice
@@ -198,10 +200,21 @@ const AnimatedBuyButton: React.FC<AnimatedBuyButtonProps> = ({ price, href, grad
             : 'opacity-100'
         }`}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-        </svg>
-        Buy
+        {isFree ? (
+          <>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Get
+          </>
+        ) : (
+          <>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+            Buy
+          </>
+        )}
       </span>
     </a>
   );
@@ -259,8 +272,8 @@ interface MainCardProps {
 }
 
 const MainCard: React.FC<MainCardProps> = ({ product, exploitData, colorScheme = 'wave', onUNCClick }) => {
-  const status = exploitData?.updateStatus ? 'online' : 'offline';
-  const statusText = status === 'online' ? 'Updated' : 'Down';
+  const status = exploitData === null ? 'error' : exploitData?.updateStatus ? 'online' : 'offline';
+  const statusText = status === 'online' ? 'Updated' : status === 'error' ? 'Error' : 'Down';
   const version = exploitData?.version || null;
   const uncPercentage = exploitData?.uncPercentage ?? null;
   const suncPercentage = exploitData?.suncPercentage ?? null;
@@ -291,12 +304,14 @@ const MainCard: React.FC<MainCardProps> = ({ product, exploitData, colorScheme =
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold uppercase ${
               status === 'online'
                 ? 'bg-green-500/15 text-green-500 border border-green-500/30'
+                : status === 'error'
+                ? 'bg-gray-500/15 text-gray-400 border border-gray-500/30'
                 : 'bg-red-500/15 text-red-500 border border-red-500/30'
             }`}
           >
             <span
-              className={`w-1.5 h-1.5 rounded-full animate-pulse ${
-                status === 'online' ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : 'bg-red-500 shadow-[0_0_8px_#ef4444]'
+              className={`w-1.5 h-1.5 rounded-full ${status !== 'error' ? 'animate-pulse' : ''} ${
+                status === 'online' ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : status === 'error' ? 'bg-gray-400' : 'bg-red-500 shadow-[0_0_8px_#ef4444]'
               }`}
             />
             <span>{statusText}</span>
@@ -431,8 +446,8 @@ interface OtherCardProps {
 }
 
 const OtherCard: React.FC<OtherCardProps> = ({ product, exploitData, onUNCClick }) => {
-  const status = exploitData?.updateStatus ? 'online' : 'offline';
-  const statusText = status === 'online' ? 'Online' : 'Down';
+  const status = exploitData === null ? 'error' : exploitData?.updateStatus ? 'online' : 'offline';
+  const statusText = status === 'online' ? 'Online' : status === 'error' ? 'Error' : 'Down';
   const version = exploitData?.version || null;
   const uncPercentage = exploitData?.uncPercentage ?? null;
   const suncPercentage = exploitData?.suncPercentage ?? null;
@@ -449,7 +464,15 @@ const OtherCard: React.FC<OtherCardProps> = ({ product, exploitData, onUNCClick 
     >
       <div className="flex flex-col h-full">
         <div className="flex justify-between items-start mb-3">
-          <h3 className="text-base font-bold text-white">{product.name}</h3>
+          <div className="flex items-center gap-2">
+            {product.icon && (
+              <div className="relative">
+                <div className="absolute inset-0 blur-md opacity-100" style={{ background: 'radial-gradient(circle, #ff0ae2 0%, transparent 70%)' }} />
+                <img src={product.icon} alt={product.name} className="w-5 h-5 object-contain relative z-10" />
+              </div>
+            )}
+            <h3 className="text-base font-bold text-white">{product.name}</h3>
+          </div>
           <div
             className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[0.65rem] font-semibold uppercase flex-shrink-0 ${
               status === 'online'
@@ -579,8 +602,8 @@ interface ExternalCardProps {
 }
 
 const ExternalCard: React.FC<ExternalCardProps> = ({ product, exploitData }) => {
-  const status = exploitData?.updateStatus ? 'online' : 'offline';
-  const statusText = status === 'online' ? 'Online' : 'Down';
+  const status = exploitData === null ? 'error' : exploitData?.updateStatus ? 'online' : 'offline';
+  const statusText = status === 'online' ? 'Online' : status === 'error' ? 'Error' : 'Down';
   const version = exploitData?.version || null;
   const cost = exploitData?.cost || null;
   const isFree = exploitData?.free ?? false;
@@ -593,17 +616,27 @@ const ExternalCard: React.FC<ExternalCardProps> = ({ product, exploitData }) => 
     >
       <div className="flex flex-col h-full">
         <div className="flex justify-between items-start mb-3">
-          <h3 className="text-base font-bold text-white">{product.name}</h3>
+          <div className="flex items-center gap-2">
+            {product.icon && (
+              <div className="relative">
+                <div className="absolute inset-0 blur-md opacity-100" style={{ background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)' }} />
+                <img src={product.icon} alt={product.name} className="w-5 h-5 object-contain relative z-10" />
+              </div>
+            )}
+            <h3 className="text-base font-bold text-white">{product.name}</h3>
+          </div>
           <div
             className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[0.65rem] font-semibold uppercase flex-shrink-0 ${
               status === 'online'
                 ? 'bg-green-500/15 text-green-500 border border-green-500/30'
+                : status === 'error'
+                ? 'bg-gray-500/15 text-gray-400 border border-gray-500/30'
                 : 'bg-red-500/15 text-red-500 border border-red-500/30'
             }`}
           >
             <span
-              className={`w-1 h-1 rounded-full animate-pulse ${
-                status === 'online' ? 'bg-green-500' : 'bg-red-500'
+              className={`w-1 h-1 rounded-full ${status !== 'error' ? 'animate-pulse' : ''} ${
+                status === 'online' ? 'bg-green-500' : status === 'error' ? 'bg-gray-400' : 'bg-red-500'
               }`}
             />
             <span>{statusText}</span>
@@ -685,8 +718,8 @@ interface AndroidCardProps {
 }
 
 const AndroidCard: React.FC<AndroidCardProps> = ({ product, exploitData, onUNCClick }) => {
-  const status = exploitData?.updateStatus ? 'online' : 'offline';
-  const statusText = status === 'online' ? 'Online' : 'Down';
+  const status = exploitData === null ? 'error' : exploitData?.updateStatus ? 'online' : 'offline';
+  const statusText = status === 'online' ? 'Online' : status === 'error' ? 'Error' : 'Down';
   const version = exploitData?.version || null;
   const uncPercentage = exploitData?.uncPercentage ?? null;
   const suncPercentage = exploitData?.suncPercentage ?? null;
@@ -703,17 +736,27 @@ const AndroidCard: React.FC<AndroidCardProps> = ({ product, exploitData, onUNCCl
     >
       <div className="flex flex-col h-full">
         <div className="flex justify-between items-start mb-3">
-          <h3 className="text-base font-bold text-white">{product.name}</h3>
+          <div className="flex items-center gap-2">
+            {product.icon && (
+              <div className="relative">
+                <div className="absolute inset-0 blur-md opacity-100" style={{ background: 'radial-gradient(circle, #22c55e 0%, transparent 70%)' }} />
+                <img src={product.icon} alt={product.name} className="w-5 h-5 object-contain relative z-10" />
+              </div>
+            )}
+            <h3 className="text-base font-bold text-white">{product.name}</h3>
+          </div>
           <div
             className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[0.65rem] font-semibold uppercase flex-shrink-0 ${
               status === 'online'
                 ? 'bg-green-500/15 text-green-500 border border-green-500/30'
+                : status === 'error'
+                ? 'bg-gray-500/15 text-gray-400 border border-gray-500/30'
                 : 'bg-red-500/15 text-red-500 border border-red-500/30'
             }`}
           >
             <span
-              className={`w-1 h-1 rounded-full animate-pulse ${
-                status === 'online' ? 'bg-green-500' : 'bg-red-500'
+              className={`w-1 h-1 rounded-full ${status !== 'error' ? 'animate-pulse' : ''} ${
+                status === 'online' ? 'bg-green-500' : status === 'error' ? 'bg-gray-400' : 'bg-red-500'
               }`}
             />
             <span>{statusText}</span>
@@ -1189,6 +1232,7 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <ThemeProvider>
+      <WinterDecorations />
       <AppContent />
     </ThemeProvider>
   );

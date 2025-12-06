@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-export type ThemeType = 'default' | 'cyberpunk' | 'ocean' | 'sunset' | 'forest';
+export type ThemeType = 'default' | 'cyberpunk' | 'ocean' | 'sunset' | 'forest' | 'winter';
 
 interface ThemeColors {
   primary: string;
@@ -16,7 +16,16 @@ interface Theme {
   colors: ThemeColors;
   gradient: string;
   gradientColors: string[];
+  isSeasonalTheme?: boolean;
 }
+
+// Check if we're in winter season (Dec 1 - Mar 1)
+const isWinterSeason = (): boolean => {
+  const now = new Date();
+  const month = now.getMonth(); // 0-11
+  // December (11), January (0), February (1)
+  return month === 11 || month === 0 || month === 1;
+};
 
 export const themes: Record<ThemeType, Theme> = {
   default: {
@@ -84,6 +93,20 @@ export const themes: Record<ThemeType, Theme> = {
     gradient: 'linear-gradient(135deg, #22c55e, #10b981, #84cc16)',
     gradientColors: ['#22c55e', '#10b981', '#84cc16', '#22c55e'],
   },
+  winter: {
+    id: 'winter',
+    name: '❄️ Winter Holiday',
+    colors: {
+      primary: '#ef4444',
+      secondary: '#22c55e',
+      accent: '#fbbf24',
+      background: '#0c1929',
+      cardBg: 'rgba(15, 30, 50, 0.9)',
+    },
+    gradient: 'linear-gradient(135deg, #ef4444, #22c55e, #fbbf24)',
+    gradientColors: ['#ef4444', '#22c55e', '#fbbf24', '#ef4444'],
+    isSeasonalTheme: true,
+  },
 };
 
 interface ThemeContextType {
@@ -92,6 +115,7 @@ interface ThemeContextType {
   setTheme: (id: ThemeType) => void;
   isTransitioning: boolean;
   setIsTransitioning: (value: boolean) => void;
+  isWinterSeason: boolean;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -109,8 +133,14 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
+  const winterActive = isWinterSeason();
+  
   const [themeId, setThemeId] = useState<ThemeType>(() => {
     const saved = localStorage.getItem('site-theme');
+    // If it's winter season and user hasn't selected a theme, default to winter
+    if (!saved && winterActive) {
+      return 'winter';
+    }
     return (saved as ThemeType) || 'default';
   });
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -139,7 +169,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, themeId, setTheme, isTransitioning, setIsTransitioning }}>
+    <ThemeContext.Provider value={{ theme, themeId, setTheme, isTransitioning, setIsTransitioning, isWinterSeason: winterActive }}>
       {children}
     </ThemeContext.Provider>
   );

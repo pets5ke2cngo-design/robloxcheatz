@@ -8,6 +8,7 @@ import AnimatedLogo from './components/AnimatedLogo';
 import { AnimationReadyProvider } from './components/AnimationReadyProvider';
 import { ThemeProvider, useTheme } from './components/ThemeContext';
 import ThemeSwitcher from './components/ThemeSwitcherNew';
+import WinterDecorations from './components/WinterDecorations';
 
 interface DowngradeCardProps {
   title: string;
@@ -64,10 +65,18 @@ const _0x = (s: string) => atob(s);
 const _d = ['d2Vhby5nZw==', 'd2Vhby54eXo=', 'd2hhdGV4cHNhcmUub25saW5l', 'd2hhdGV4cGxvaXRzYXJldHJhLnNo'];
 const _r = 'cmRkLndlYW8uZ2c=';
 
+interface VersionInfo {
+  Windows: string;
+  WindowsDate: string;
+  Mac: string;
+  MacDate: string;
+}
+
 const DowngradeContent: React.FC = () => {
   const { theme, themeId } = useTheme();
   const [previousVersion, setPreviousVersion] = useState('version-e380c8edc8f6477c');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [currentVersions, setCurrentVersions] = useState<VersionInfo | null>(null);
 
   const dockItems = [
     { 
@@ -89,6 +98,7 @@ const DowngradeContent: React.FC = () => {
 
   useEffect(() => {
     fetchPreviousVersion();
+    fetchCurrentVersions();
   }, []);
 
   const fetchWithFallback = async (endpoint: string) => {
@@ -119,6 +129,22 @@ const DowngradeContent: React.FC = () => {
       const savedVersion = localStorage.getItem('previousRobloxVersion');
       if (savedVersion) {
         setPreviousVersion(savedVersion);
+      }
+    }
+  };
+
+  const fetchCurrentVersions = async () => {
+    try {
+      const data = await fetchWithFallback('/api/versions/current');
+      if (data && data.Windows && data.Mac) {
+        setCurrentVersions(data);
+        localStorage.setItem('currentRobloxVersions', JSON.stringify(data));
+      }
+    } catch (error) {
+      console.error('Failed to fetch current versions:', error);
+      const savedVersions = localStorage.getItem('currentRobloxVersions');
+      if (savedVersions) {
+        setCurrentVersions(JSON.parse(savedVersions));
       }
     }
   };
@@ -287,6 +313,111 @@ const DowngradeContent: React.FC = () => {
           <p className="text-gray-500 text-sm mt-6">
             Step-by-step guide to downgrade Roblox using Fishstrap
           </p>
+        </div>
+
+        {/* Roblox Versions Tracker */}
+        <div className="mb-10">
+          <SpotlightCard
+            className="cursor-target h-auto w-full max-w-[900px] mx-auto hover:border-pink-500/30 hover:-translate-y-1 transition-all duration-300"
+            spotlightColor="rgba(255, 10, 226, 0.15)"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-lg overflow-hidden">
+                <img src="/roblox.webp" alt="Roblox" className="w-full h-full object-cover" />
+              </div>
+              <h3 className="text-lg font-bold text-white">Roblox</h3>
+            </div>
+            
+            {currentVersions ? (
+              <div className="space-y-4">
+                {/* Windows Version */}
+                <div className="flex items-center justify-between p-4 rounded-xl bg-neutral-900/60 border border-white/5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/15 border border-blue-500/30 flex items-center justify-center">
+                      <img src="/windows.png" alt="Windows" className="w-4 h-4 brightness-0 invert" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">Windows Version</p>
+                      <p className="text-gray-500 text-xs">Last Updated: {currentVersions.WindowsDate}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <code 
+                      onClick={() => copyToClipboard(currentVersions.Windows, 'win-version')}
+                      className={`cursor-pointer px-3 py-2 rounded-lg bg-neutral-800/80 border border-white/10 font-mono text-green-400 text-sm transition-all duration-300 hover:bg-green-500/20 hover:border-green-500/30 select-none ${copiedId === 'win-version' ? 'bg-green-500/30 border-green-500/50' : ''}`}
+                    >
+                      {currentVersions.Windows}
+                    </code>
+                    <button
+                      onClick={() => copyToClipboard(currentVersions.Windows, 'win-version')}
+                      className="cursor-target p-2 rounded-lg bg-neutral-800/60 border border-white/10 hover:bg-pink-500/20 hover:border-pink-500/30 transition-all duration-300"
+                      title="Copy to clipboard"
+                    >
+                      {copiedId === 'win-version' ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Mac Version */}
+                <div className="flex items-center justify-between p-4 rounded-xl bg-neutral-900/60 border border-white/5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-gray-500/15 border border-gray-500/30 flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-white">
+                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold text-sm">Mac Version</p>
+                      <p className="text-gray-500 text-xs">Last Updated: {currentVersions.MacDate}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <code 
+                      onClick={() => copyToClipboard(currentVersions.Mac, 'mac-version')}
+                      className={`cursor-pointer px-3 py-2 rounded-lg bg-neutral-800/80 border border-white/10 font-mono text-green-400 text-sm transition-all duration-300 hover:bg-green-500/20 hover:border-green-500/30 select-none ${copiedId === 'mac-version' ? 'bg-green-500/30 border-green-500/50' : ''}`}
+                    >
+                      {currentVersions.Mac}
+                    </code>
+                    <button
+                      onClick={() => copyToClipboard(currentVersions.Mac, 'mac-version')}
+                      className="cursor-target p-2 rounded-lg bg-neutral-800/60 border border-white/10 hover:bg-pink-500/20 hover:border-pink-500/30 transition-all duration-300"
+                      title="Copy to clipboard"
+                    >
+                      {copiedId === 'mac-version' ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
+                          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center py-8">
+                <div className="flex items-center gap-3 text-gray-400">
+                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Loading versions...</span>
+                </div>
+              </div>
+            )}
+          </SpotlightCard>
         </div>
 
         <div className="flex flex-col items-center gap-6">
@@ -520,6 +651,7 @@ const DowngradeContent: React.FC = () => {
 
 const DowngradeApp: React.FC = () => (
   <ThemeProvider>
+    <WinterDecorations />
     <DowngradeContent />
   </ThemeProvider>
 );

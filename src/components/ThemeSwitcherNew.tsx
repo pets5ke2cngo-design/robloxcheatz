@@ -146,14 +146,21 @@ const ThemeSwitcher: React.FC = () => {
             className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 py-2 rounded-xl bg-[#0f0f14]/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden"
             style={{ animation: 'themeDropdownSlideIn 0.2s ease-out forwards' }}
           >
-            {Object.values(themes).map((t, index) => (
+            {Object.values(themes).map((t, index) => {
+              const isWinterTheme = t.id === 'winter';
+              
+              return (
               <button
                 key={t.id}
                 onClick={() => handleThemeSelect(t.id)}
                 className={`cursor-target w-full flex items-center gap-3 px-4 py-2.5 text-left transition-all duration-200 ${
                   themeId === t.id 
-                    ? 'bg-white/10 text-white' 
-                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                    ? isWinterTheme
+                      ? 'bg-gradient-to-r from-red-500/20 via-green-500/20 to-yellow-500/20 text-white'
+                      : 'bg-white/10 text-white' 
+                    : isWinterTheme
+                      ? 'text-gray-400 hover:bg-gradient-to-r hover:from-red-500/10 hover:via-green-500/10 hover:to-yellow-500/10 hover:text-white'
+                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
                 }`}
                 style={{ 
                   animation: `themeItemFadeIn 0.2s ease-out forwards`,
@@ -162,11 +169,24 @@ const ThemeSwitcher: React.FC = () => {
                 }}
               >
                 {/* Theme color preview */}
-                <div 
-                  className="w-6 h-6 rounded-lg flex-shrink-0"
-                  style={{ background: t.gradient }}
-                />
-                <span className="text-sm font-medium">{t.name}</span>
+                {isWinterTheme ? (
+                  <div className="w-6 h-6 rounded-lg flex-shrink-0 flex items-center justify-center text-sm" style={{ background: 'linear-gradient(135deg, #0c1929, #1e3a5f)' }}>
+                    ❄️
+                  </div>
+                ) : (
+                  <div 
+                    className="w-6 h-6 rounded-lg flex-shrink-0"
+                    style={{ background: t.gradient }}
+                  />
+                )}
+                <span className={`text-sm font-medium ${isWinterTheme ? 'bg-gradient-to-r from-red-400 via-green-400 to-yellow-400 bg-clip-text text-transparent' : ''}`}>
+                  {t.name}
+                </span>
+                {isWinterTheme && (
+                  <span className="text-xs px-1.5 py-0.5 rounded bg-gradient-to-r from-red-500/30 to-green-500/30 text-white/80 ml-auto mr-1">
+                    Season
+                  </span>
+                )}
                 {themeId === t.id && (
                   <svg 
                     xmlns="http://www.w3.org/2000/svg" 
@@ -176,13 +196,14 @@ const ThemeSwitcher: React.FC = () => {
                     strokeWidth="2.5" 
                     strokeLinecap="round" 
                     strokeLinejoin="round" 
-                    className="w-4 h-4 ml-auto"
+                    className={`w-4 h-4 ${isWinterTheme ? '' : 'ml-auto'}`}
                   >
                     <polyline points="20 6 9 17 4 12"/>
                   </svg>
                 )}
               </button>
-            ))}
+            );
+            })}
           </div>
         )}
       </div>

@@ -8,6 +8,7 @@ import AnimatedLogo from './components/AnimatedLogo';
 import { AnimationReadyProvider } from './components/AnimationReadyProvider';
 import { ThemeProvider, useTheme } from './components/ThemeContext';
 import ThemeSwitcher from './components/ThemeSwitcherNew';
+import WinterDecorations from './components/WinterDecorations';
 
 interface InfoCardProps {
   title: string;
@@ -272,6 +273,7 @@ const InfoContent: React.FC = () => {
 
 const InfoApp: React.FC = () => (
   <ThemeProvider>
+    <WinterDecorations />
     <InfoContent />
   </ThemeProvider>
 );

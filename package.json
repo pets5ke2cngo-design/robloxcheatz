@@ -10,6 +10,7 @@
     "dev": "node build.js && node server.js"
   },
   "dependencies": {
+    "christmas-lights": "^1.0.1",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",
