@@ -429,7 +429,7 @@ const MainCard: React.FC<MainCardProps> = ({ product, exploitData, colorScheme =
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
                 <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
               </svg>
-              View
+              Showcase
             </a>
           </div>
         </div>
@@ -588,7 +588,7 @@ const OtherCard: React.FC<OtherCardProps> = ({ product, exploitData, onUNCClick 
             target="_blank"
             rel="noopener noreferrer"
           >
-            View
+            Showcase
           </a>
         </div>
       </div>
@@ -703,7 +703,7 @@ const ExternalCard: React.FC<ExternalCardProps> = ({ product, exploitData }) => 
             target="_blank"
             rel="noopener noreferrer"
           >
-            View
+            Showcase
           </a>
         </div>
       </div>
@@ -862,7 +862,7 @@ const AndroidCard: React.FC<AndroidCardProps> = ({ product, exploitData, onUNCCl
             target="_blank"
             rel="noopener noreferrer"
           >
-            View
+            Showcase
           </a>
         </div>
       </div>
