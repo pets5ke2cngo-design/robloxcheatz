@@ -12,6 +12,82 @@ import UNCModal from './components/UNCModal';
 import { ThemeProvider, useTheme, themes } from './components/ThemeContext';
 import ThemeSwitcher from './components/ThemeSwitcherNew';
 
+// Inject flowing background animation styles
+const injectFlowingStyles = () => {
+  if (typeof document === 'undefined' || document.getElementById('flowing-bg-styles')) return;
+  const style = document.createElement('style');
+  style.id = 'flowing-bg-styles';
+  style.textContent = `
+    @keyframes flowRight {
+      0% { transform: translateX(-50%); }
+      100% { transform: translateX(0%); }
+    }
+    @keyframes flowLeft {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    .flow-right {
+      animation: flowRight 20s linear infinite;
+    }
+    .flow-left {
+      animation: flowLeft 20s linear infinite;
+    }
+  `;
+  document.head.appendChild(style);
+};
+
+// Flowing background component for main cards
+const FlowingBackground: React.FC<{ imageUrl: string; iconSize: string }> = ({ imageUrl, iconSize }) => {
+  useEffect(() => {
+    injectFlowingStyles();
+  }, []);
+
+  const rows = 8;
+  const iconSizeNum = parseInt(iconSize) || 40;
+  
+  return (
+    <div 
+      className="absolute inset-0 overflow-hidden"
+      style={{
+        transform: 'rotate(-15deg) scale(1.8)',
+        transformOrigin: 'center center',
+        opacity: 0.06,
+        filter: 'grayscale(100%)',
+        pointerEvents: 'none',
+      }}
+    >
+      {Array.from({ length: rows }).map((_, rowIndex) => (
+        <div
+          key={rowIndex}
+          className={rowIndex % 2 === 0 ? 'flow-right' : 'flow-left'}
+          style={{
+            display: 'flex',
+            width: '200%',
+            height: iconSizeNum,
+            marginBottom: 4,
+          }}
+        >
+          {Array.from({ length: 30 }).map((_, colIndex) => (
+            <div
+              key={colIndex}
+              style={{
+                width: iconSizeNum,
+                height: iconSizeNum,
+                backgroundImage: `url(${imageUrl})`,
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+                flexShrink: 0,
+                marginRight: 8,
+              }}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 interface Product {
   id: string;
   name: string;
@@ -36,6 +112,9 @@ interface ExploitData {
   updateStatus?: boolean;
   decompiler?: boolean;
   multiInject?: boolean;
+  cost?: string;
+  free?: boolean;
+  purchaselink?: string;
 }
 
 const CONFIG = {
@@ -68,6 +147,66 @@ const formatValue = (value: any, suffix = '') => {
   return `${value}${suffix}`;
 };
 
+// Animated Buy Button component with price/period display
+import ShinyText from './components/ShinyText';
+
+interface AnimatedBuyButtonProps {
+  price: string | null;
+  href: string;
+  gradient: string;
+  shadow: string;
+  isFree?: boolean;
+  shineColor?: string;
+}
+
+const AnimatedBuyButton: React.FC<AnimatedBuyButtonProps> = ({ price, href, gradient, shadow, isFree, shineColor = '#b8e0ff' }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  const displayPrice = isFree ? 'Free' : price;
+  const hasPrice = displayPrice && displayPrice !== '';
+  
+  return (
+    <a
+      href={href || '#'}
+      className={`cursor-target flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-br ${gradient} hover:scale-[1.02] transition-all overflow-hidden relative`}
+      style={{ boxShadow: `0 4px 20px ${shadow}` }}
+      target="_blank"
+      rel="noopener noreferrer"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Price/Period text (default) - with ShinyText effect */}
+      <span 
+        className={`flex items-center gap-1.5 transition-all duration-300 ${
+          hasPrice 
+            ? isHovered 
+              ? 'opacity-0 transform -translate-y-full absolute' 
+              : 'opacity-100 transform translate-y-0'
+            : 'hidden'
+        }`}
+      >
+        <ShinyText text={displayPrice || ''} shineColor={shineColor} />
+      </span>
+      
+      {/* Buy text with icon (on hover or if no price) */}
+      <span 
+        className={`flex items-center gap-1.5 transition-all duration-300 ${
+          hasPrice
+            ? isHovered 
+              ? 'opacity-100 transform translate-y-0' 
+              : 'opacity-0 transform translate-y-full absolute'
+            : 'opacity-100'
+        }`}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+        Buy
+      </span>
+    </a>
+  );
+};
+
 type ColorScheme = 'wave' | 'seliware' | 'matcha';
 
 const colorSchemes = {
@@ -77,8 +216,9 @@ const colorSchemes = {
     accentBg: 'bg-blue-500/15',
     accentBorder: 'border-blue-500/30',
     accentText: 'text-blue-500',
-    buttonGradient: 'from-blue-500 to-white',
-    buttonShadow: 'rgba(59, 130, 246, 0.4)',
+    buttonGradient: 'from-blue-500/70 to-blue-400/50',
+    buttonShadow: 'rgba(59, 130, 246, 0.3)',
+    shineColor: '#fbbf24',
     isExternal: false,
     backgroundImage: '/wave.png',
     bgIconSize: '40px',
@@ -89,8 +229,9 @@ const colorSchemes = {
     accentBg: 'bg-pink-500/15',
     accentBorder: 'border-pink-500/30',
     accentText: 'text-pink-400',
-    buttonGradient: 'from-pink-500 to-cyan-400',
-    buttonShadow: 'rgba(236, 72, 153, 0.4)',
+    buttonGradient: 'from-pink-500/70 to-purple-500/50',
+    buttonShadow: 'rgba(236, 72, 153, 0.3)',
+    shineColor: '#2dd4bf',
     isExternal: false,
     backgroundImage: '/seliware.png',
     bgIconSize: '40px',
@@ -101,8 +242,9 @@ const colorSchemes = {
     accentBg: 'bg-lime-500/15',
     accentBorder: 'border-lime-500/30',
     accentText: 'text-lime-500',
-    buttonGradient: 'from-green-500 to-lime-400',
-    buttonShadow: 'rgba(132, 204, 22, 0.4)',
+    buttonGradient: 'from-green-500/70 to-lime-400/50',
+    buttonShadow: 'rgba(132, 204, 22, 0.3)',
+    shineColor: '#f472b6',
     isExternal: true,
     backgroundImage: '/matcha.png',
     bgIconSize: '40px',
@@ -124,6 +266,9 @@ const MainCard: React.FC<MainCardProps> = ({ product, exploitData, colorScheme =
   const suncPercentage = exploitData?.suncPercentage ?? null;
   const hasDecompiler = exploitData?.decompiler ?? false;
   const hasMultiInject = exploitData?.multiInject ?? false;
+  const cost = exploitData?.cost || null;
+  const isFree = exploitData?.free ?? false;
+  const purchaseLink = exploitData?.purchaselink || product.buyLink || '#';
   
   const scheme = colorSchemes[colorScheme];
 
@@ -137,21 +282,8 @@ const MainCard: React.FC<MainCardProps> = ({ product, exploitData, colorScheme =
       style={{ background: 'rgba(17, 17, 22, 0.9)', borderRadius: '16px' }}
     >
       <div className="relative h-full w-full overflow-hidden rounded-2xl">
-        {/* Background pattern with tilted grid of small icons */}
-        <div 
-          className="absolute inset-0"
-          style={{ 
-            backgroundImage: `url(${scheme.backgroundImage})`,
-            backgroundSize: scheme.bgIconSize,
-            backgroundPosition: 'center',
-            backgroundRepeat: 'space',
-            opacity: 0.06,
-            filter: 'grayscale(100%)',
-            pointerEvents: 'none',
-            transform: 'rotate(-15deg) scale(1.5)',
-            transformOrigin: 'center center',
-          }}
-        />
+        {/* Animated flowing background pattern */}
+        <FlowingBackground imageUrl={scheme.backgroundImage} iconSize={scheme.bgIconSize} />
         <div className="p-6 pb-5 h-full flex flex-col relative z-10">
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-xl font-bold text-white">{product.name}</h3>
@@ -181,20 +313,12 @@ const MainCard: React.FC<MainCardProps> = ({ product, exploitData, colorScheme =
             </span>
             <span className="font-semibold text-white">{formatValue(version)}</span>
           </div>
-          <div 
-            className={`flex justify-between items-center -mx-2 px-2 py-1 rounded-lg transition-colors ${uncPercentage !== null ? 'cursor-target hover:bg-white/5' : ''}`}
-            onClick={() => uncPercentage !== null && onUNCClick && onUNCClick(product.apiName, 'unc', uncPercentage)}
-          >
+          <div className="flex justify-between items-center -mx-2 px-2 py-1 rounded-lg">
             <span className="flex items-center gap-1.5">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke={scheme.iconColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
               </svg>
               UNC
-              {uncPercentage !== null && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke={scheme.iconColor} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3 opacity-50">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-                </svg>
-              )}
             </span>
             <span className="font-semibold text-white">{formatValue(uncPercentage, '%')}</span>
           </div>
@@ -249,18 +373,14 @@ const MainCard: React.FC<MainCardProps> = ({ product, exploitData, colorScheme =
 
           <div className="flex flex-col gap-2.5">
             <div className="flex gap-2.5">
-              <a
-                href={product.buyLink || '#'}
-                className={`cursor-target flex-1 flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-br ${scheme.buttonGradient} hover:scale-[1.02] transition-all`}
-                style={{ boxShadow: `0 4px 20px ${scheme.buttonShadow}` }}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
-                  <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                </svg>
-                Buy
-              </a>
+              <AnimatedBuyButton
+                price={cost}
+                href={purchaseLink}
+                gradient={scheme.buttonGradient}
+                shadow={scheme.buttonShadow}
+                shineColor={scheme.shineColor}
+                isFree={isFree}
+              />
               <a
                 href={product.discordLink || '#'}
                 target="_blank"
@@ -318,6 +438,9 @@ const OtherCard: React.FC<OtherCardProps> = ({ product, exploitData, onUNCClick 
   const suncPercentage = exploitData?.suncPercentage ?? null;
   const hasDecompiler = exploitData?.decompiler ?? false;
   const hasMultiInject = exploitData?.multiInject ?? false;
+  const cost = exploitData?.cost || null;
+  const isFree = exploitData?.free ?? false;
+  const purchaseLink = exploitData?.purchaselink || product.buyLink || '#';
 
   return (
     <SpotlightCard
@@ -361,16 +484,9 @@ const OtherCard: React.FC<OtherCardProps> = ({ product, exploitData, onUNCClick 
               UNC/SUNC
             </span>
             <div className="flex items-center gap-1">
-              {uncPercentage !== null ? (
-                <button
-                  onClick={() => onUNCClick && onUNCClick(product.apiName, 'unc', uncPercentage)}
-                  className="cursor-target font-semibold text-white hover:text-blue-400 transition-colors"
-                >
-                  {uncPercentage}%
-                </button>
-              ) : (
-                <span className="text-gray-500">-</span>
-              )}
+              <span className="font-semibold text-white">
+                {uncPercentage !== null ? `${uncPercentage}%` : '-'}
+              </span>
               <span className="text-gray-500">/</span>
               {suncPercentage !== null ? (
                 <button
@@ -411,14 +527,14 @@ const OtherCard: React.FC<OtherCardProps> = ({ product, exploitData, onUNCClick 
 
         <div className="flex flex-col gap-2">
           <div className="flex gap-2">
-            <a
-              href={product.buyLink || '#'}
-              className="cursor-target flex-1 text-center px-3 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-br from-pink-500 to-blue-500 hover:scale-[1.02] transition-all"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Buy
-            </a>
+            <AnimatedBuyButton
+              price={cost}
+              href={purchaseLink}
+              gradient="from-pink-500/70 to-blue-500/50"
+              shadow="rgba(255, 10, 226, 0.25)"
+              shineColor="#38bdf8"
+              isFree={isFree}
+            />
             <a
               href={product.discordLink || '#'}
               target="_blank"
@@ -466,6 +582,9 @@ const ExternalCard: React.FC<ExternalCardProps> = ({ product, exploitData }) => 
   const status = exploitData?.updateStatus ? 'online' : 'offline';
   const statusText = status === 'online' ? 'Online' : 'Down';
   const version = exploitData?.version || null;
+  const cost = exploitData?.cost || null;
+  const isFree = exploitData?.free ?? false;
+  const purchaseLink = exploitData?.purchaselink || product.buyLink || '#';
 
   return (
     <SpotlightCard
@@ -513,14 +632,14 @@ const ExternalCard: React.FC<ExternalCardProps> = ({ product, exploitData }) => 
 
         <div className="flex flex-col gap-2">
           <div className="flex gap-2">
-            <a
-              href={product.buyLink || '#'}
-              className="cursor-target flex-1 text-center px-3 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-br from-blue-500 to-cyan-500 hover:scale-[1.02] transition-all"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Buy
-            </a>
+            <AnimatedBuyButton
+              price={cost}
+              href={purchaseLink}
+              gradient="from-blue-500/70 to-cyan-500/50"
+              shadow="rgba(59, 130, 246, 0.25)"
+              shineColor="#fb923c"
+              isFree={isFree}
+            />
             <a
               href={product.discordLink || '#'}
               target="_blank"
@@ -573,6 +692,9 @@ const AndroidCard: React.FC<AndroidCardProps> = ({ product, exploitData, onUNCCl
   const suncPercentage = exploitData?.suncPercentage ?? null;
   const hasDecompiler = exploitData?.decompiler ?? false;
   const hasMultiInject = exploitData?.multiInject ?? false;
+  const cost = exploitData?.cost || null;
+  const isFree = exploitData?.free ?? false;
+  const purchaseLink = exploitData?.purchaselink || product.buyLink || '#';
 
   return (
     <SpotlightCard
@@ -616,16 +738,9 @@ const AndroidCard: React.FC<AndroidCardProps> = ({ product, exploitData, onUNCCl
               UNC/SUNC
             </span>
             <div className="flex items-center gap-1">
-              {uncPercentage !== null ? (
-                <button
-                  onClick={() => onUNCClick && onUNCClick(product.apiName, 'unc', uncPercentage)}
-                  className="cursor-target font-semibold text-white hover:text-blue-400 transition-colors"
-                >
-                  {uncPercentage}%
-                </button>
-              ) : (
-                <span className="text-gray-500">-</span>
-              )}
+              <span className="font-semibold text-white">
+                {uncPercentage !== null ? `${uncPercentage}%` : '-'}
+              </span>
               <span className="text-gray-500">/</span>
               {suncPercentage !== null ? (
                 <button
@@ -666,14 +781,14 @@ const AndroidCard: React.FC<AndroidCardProps> = ({ product, exploitData, onUNCCl
 
         <div className="flex flex-col gap-2">
           <div className="flex gap-2">
-            <a
-              href={product.buyLink || '#'}
-              className="cursor-target flex-1 text-center px-3 py-2 rounded-lg text-xs font-semibold text-white bg-gradient-to-br from-green-500 to-teal-500 hover:scale-[1.02] transition-all"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Buy
-            </a>
+            <AnimatedBuyButton
+              price={cost}
+              href={purchaseLink}
+              gradient="from-green-500/70 to-teal-500/50"
+              shadow="rgba(34, 197, 94, 0.25)"
+              shineColor="#f472b6"
+              isFree={isFree}
+            />
             <a
               href={product.discordLink || '#'}
               target="_blank"

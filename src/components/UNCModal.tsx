@@ -13,6 +13,18 @@ interface ParsedTestData {
   total: number;
   failed: number;
   testDate?: string;
+  // Версия из скана sUNC (версия теста)
+  scannedVersion?: string;
+  // Текущая версия эксплоита из WEAO
+  executorVersion?: string;
+  // Версия sUNC теста
+  suncTestVersion?: string;
+  // Legacy version field
+  version?: string;
+  timeTaken?: number;
+  source?: string;
+  updateStatus?: boolean;
+  rbxVersion?: string;
   results: TestResult[];
   categories: Record<string, TestResult[]>;
 }
@@ -153,43 +165,47 @@ const UNCModal: React.FC<UNCModalProps> = ({ isOpen, onClose, exploitName, testT
   };
 
   const categorizeResults = (results: TestResult[]) => {
-    const categories: Record<string, TestResult[]> = {
-      'cache': [],
-      'closures': [],
-      'crypt': [],
-      'debug': [],
-      'filesystem': [],
-      'input': [],
-      'instances': [],
-      'metatable': [],
-      'misc': [],
-      'drawing': [],
-      'websocket': [],
-      'console': [],
-      'scripts': [],
-      'other': [],
+    // Modern category mapping based on actual Rubis API function names
+    const categoryMap: Record<string, string[]> = {
+      'cache': ['cache.iscached', 'cache.invalidate', 'cache.replace'],
+      'closures': ['clonefunction', 'hookfunction', 'newcclosure', 'iscclosure', 'islclosure', 'isexecutorclosure', 'restorefunction', 'checkcaller', 'getfunctionhash', 'getcallingscript'],
+      'crypt': ['base64_encode', 'base64_decode', 'lz4compress', 'lz4decompress'],
+      'debug': ['debug.getinfo', 'debug.getupvalue', 'debug.getupvalues', 'debug.setupvalue', 'debug.getconstant', 'debug.getconstants', 'debug.setconstant', 'debug.getproto', 'debug.getprotos', 'debug.getstack', 'debug.setstack'],
+      'filesystem': ['readfile', 'writefile', 'appendfile', 'loadfile', 'listfiles', 'isfile', 'isfolder', 'makefolder', 'delfolder', 'delfile', 'getcustomasset', 'dofile'],
+      'input': ['mouse', 'keyboard', 'isrbxactive', 'click'],
+      'instances': ['getinstances', 'getnilinstances', 'cloneref', 'compareinstances', 'gethui', 'fireclickdetector', 'fireproximityprompt', 'firetouchinterest', 'getcallbackvalue'],
+      'metatable': ['getrawmetatable', 'setrawmetatable', 'hookmetamethod', 'getnamecallmethod', 'isreadonly', 'setreadonly'],
+      'drawing': ['drawing.new', 'drawing.fonts', 'isrenderobj', 'getrenderproperty', 'setrenderproperty', 'cleardrawcache'],
+      'websocket': ['websocket.connect'],
+      'console': ['rconsole', 'console'],
+      'scripts': ['loadstring', 'decompile', 'getscripts', 'getrunningscripts', 'getloadedmodules', 'getscriptbytecode', 'getscripthash', 'getscriptclosure', 'getsenv', 'getgc', 'filtergc', 'getgenv', 'getrenv'],
+      'signals': ['firesignal', 'getconnections', 'replicatesignal'],
+      'reflection': ['gethiddenproperty', 'sethiddenproperty', 'isscriptable', 'setscriptable', 'getthreadidentity', 'setthreadidentity'],
+      'misc': ['identifyexecutor', 'request', 'setfpscap', 'setclipboard', 'messagebox'],
     };
 
-    results.forEach(result => {
-      const name = result.name.toLowerCase();
-      if (name.startsWith('cache.')) categories['cache'].push(result);
-      else if (name.includes('closure') || name.includes('cclosure') || name.includes('lclosure')) categories['closures'].push(result);
-      else if (name.startsWith('crypt.') || name.includes('base64') || name.includes('lz4')) categories['crypt'].push(result);
-      else if (name.startsWith('debug.')) categories['debug'].push(result);
-      else if (name.includes('file') || name.includes('folder') || name.includes('appendfile') || name.includes('readfile') || name.includes('writefile') || name.includes('listfiles') || name.includes('loadfile') || name.includes('makefolder') || name.includes('delfolder') || name.includes('delfile') || name.includes('isfile') || name.includes('isfolder')) categories['filesystem'].push(result);
-      else if (name.includes('mouse') || name.includes('click') || name.includes('input') || name.includes('isrbxactive')) categories['input'].push(result);
-      else if (name.includes('instance') || name.includes('cloneref') || name.includes('compareinstances') || name.includes('gethui') || name.includes('getnil') || name.includes('fireclickdetector') || name.includes('fireproximityprompt') || name.includes('firetouchinterest') || name.includes('firesignal')) categories['instances'].push(result);
-      else if (name.includes('metatable') || name.includes('readonly') || name.includes('rawmetatable') || name.includes('hookmetamethod') || name.includes('namecallmethod')) categories['metatable'].push(result);
-      else if (name.startsWith('drawing') || name.includes('renderobj') || name.includes('renderproperty') || name.includes('drawcache')) categories['drawing'].push(result);
-      else if (name.includes('websocket')) categories['websocket'].push(result);
-      else if (name.includes('rconsole') || name.includes('console')) categories['console'].push(result);
-      else if (name.includes('script') || name.includes('loadstring') || name.includes('decompile') || name.includes('getscript') || name.includes('getsenv') || name.includes('getrunning') || name.includes('getloaded') || name.includes('bytecode') || name.includes('scripthash')) categories['scripts'].push(result);
-      else categories['other'].push(result);
-    });
+    const categories: Record<string, TestResult[]> = {};
 
-    // Remove empty categories
-    Object.keys(categories).forEach(key => {
-      if (categories[key].length === 0) delete categories[key];
+    results.forEach(result => {
+      const nameLower = result.name.toLowerCase();
+      let categorized = false;
+      
+      for (const [category, patterns] of Object.entries(categoryMap)) {
+        for (const pattern of patterns) {
+          if (nameLower === pattern.toLowerCase() || nameLower.startsWith(pattern.toLowerCase())) {
+            if (!categories[category]) categories[category] = [];
+            categories[category].push(result);
+            categorized = true;
+            break;
+          }
+        }
+        if (categorized) break;
+      }
+      
+      if (!categorized) {
+        if (!categories['other']) categories['other'] = [];
+        categories['other'].push(result);
+      }
     });
 
     return categories;
@@ -242,9 +258,28 @@ const UNCModal: React.FC<UNCModalProps> = ({ isOpen, onClose, exploitName, testT
                 <h2 className="text-xl font-bold text-white">
                   {exploitName} <span className={testType === 'sunc' ? 'text-pink-400' : 'text-blue-400'}>{testType.toUpperCase()}</span> Test
                 </h2>
-                {testData?.testDate && (
-                  <p className="text-xs text-gray-500">Tested: {testData.testDate}</p>
-                )}
+                <div className="flex flex-wrap items-center gap-2 mt-1">
+                  {testData?.testDate && (
+                    <span className="text-xs text-gray-500">
+                      Tested: {testData.testDate}
+                    </span>
+                  )}
+                  {(testData?.scannedVersion || testData?.suncTestVersion) && (
+                    <span className="text-xs px-2 py-0.5 rounded bg-pink-500/20 text-pink-400 border border-pink-500/30">
+                      sUNC {testData.scannedVersion || testData.suncTestVersion}
+                    </span>
+                  )}
+                  {testData?.executorVersion && (
+                    <span className="text-xs px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                      {exploitName} {testData.executorVersion}
+                    </span>
+                  )}
+                  {testData?.timeTaken && (
+                    <span className="text-xs text-gray-500">
+                      • {testData.timeTaken.toFixed(2)}s
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
             
