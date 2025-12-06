@@ -317,94 +317,126 @@ function _parseTestData(rawText, executorName, testType) {
 const _d = (s) => Buffer.from(s, 'base64').toString('utf8');
 const _src = {
   h: _d('cmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbQ=='),
-  p: _d('L2xvY2Fsc2NyaXB0cy92b3hsaXMuTkVUL21haW4vYXNzZXRzL3VuYy8=')
+  p: _d('L2xvY2Fsc2NyaXB0cy92b3hsaXMuTkVUL21haW4vYXNzZXRzL3VuYy8='),
+  rubis: _d('YXBpLnJ1YmlzLmFwcA=='),
+  rubisPath: _d('L3YyL3NjcmFwLw==')
 };
 
-// Full sUNC 2.1.0 function list (85 functions)
-const suncFunctions = {
-  closures: ['checkcaller', 'clonefunction', 'getfunctionhash', 'hookfunction', 'hookmetamethod', 'iscclosure', 'isexecutorclosure', 'islclosure', 'newcclosure', 'restorefunction'],
-  debug: ['debug.getconstant', 'debug.getconstants', 'debug.getproto', 'debug.getprotos', 'debug.getstack', 'debug.getupvalue', 'debug.getupvalues', 'debug.setconstant', 'debug.setstack', 'debug.setupvalue'],
-  drawing: ['Drawing.new', 'Drawing.Fonts', 'cleardrawcache', 'getrenderproperty', 'isrenderobj', 'setrenderproperty'],
-  encoding: ['base64decode', 'base64encode', 'lz4compress', 'lz4decompress'],
-  environment: ['getgc', 'getgenv', 'getreg', 'getrenv', 'filtergc'],
-  filesystem: ['appendfile', 'delfile', 'delfolder', 'getcustomasset', 'isfile', 'isfolder', 'listfiles', 'loadfile', 'makefolder', 'readfile', 'writefile'],
-  instances: ['cloneref', 'compareinstances', 'fireclickdetector', 'fireproximityprompt', 'firetouchinterest', 'getcallbackvalue', 'gethui', 'getinstances', 'getnilinstances'],
-  metatable: ['getnamecallmethod', 'getrawmetatable', 'isreadonly', 'setrawmetatable', 'setreadonly'],
-  misc: ['identifyexecutor', 'request'],
-  reflection: ['gethiddenproperty', 'getthreadidentity', 'isscriptable', 'sethiddenproperty', 'setscriptable', 'setthreadidentity'],
-  scripts: ['getcallingscript', 'getloadedmodules', 'getrunningscripts', 'getscriptbytecode', 'getscriptclosure', 'getscripthash', 'getscripts', 'getsenv', 'loadstring'],
-  signals: ['firesignal', 'getconnections', 'replicatesignal'],
-  websocket: ['WebSocket.connect']
+// WEAO exploits cache for Rubis API keys
+let weaoExploitsCache = null;
+let weaoExploitsCacheTime = 0;
+const WEAO_EXPLOITS_CACHE_TTL = 600000; // 10 minutes
+
+// Category mapping for test functions
+const categoryMap = {
+  'cache': ['cache.'],
+  'closures': ['closure', 'cclosure', 'lclosure', 'clonefunction', 'hookfunction', 'newcclosure', 'iscclosure', 'islclosure', 'isexecutorclosure', 'restorefunction', 'checkcaller', 'getfunctionhash'],
+  'crypt': ['crypt.', 'base64', 'lz4'],
+  'debug': ['debug.'],
+  'filesystem': ['file', 'folder', 'appendfile', 'readfile', 'writefile', 'listfiles', 'loadfile', 'makefolder', 'delfolder', 'delfile', 'isfile', 'isfolder', 'getcustomasset'],
+  'instances': ['instance', 'cloneref', 'compareinstances', 'gethui', 'getnil', 'fireclickdetector', 'fireproximityprompt', 'firetouchinterest', 'getcallbackvalue'],
+  'metatable': ['metatable', 'readonly', 'rawmetatable', 'hookmetamethod', 'namecallmethod'],
+  'drawing': ['drawing', 'renderobj', 'renderproperty', 'drawcache'],
+  'websocket': ['websocket'],
+  'scripts': ['script', 'loadstring', 'decompile', 'getscript', 'getsenv', 'getrunning', 'getloaded', 'bytecode', 'scripthash', 'getgc', 'getgenv', 'getrenv', 'filtergc'],
+  'signals': ['firesignal', 'getconnections', 'replicatesignal'],
+  'reflection': ['gethiddenproperty', 'sethiddenproperty', 'isscriptable', 'setscriptable', 'getthreadidentity', 'setthreadidentity'],
+  'misc': ['identifyexecutor', 'request']
 };
 
-// Generate full results for 100% executors
-function generateFullSuncResults() {
+// Fetch WEAO exploits for Rubis keys
+async function fetchWeaoExploitsForRubis() {
+  const now = Date.now();
+  if (weaoExploitsCache && (now - weaoExploitsCacheTime) < WEAO_EXPLOITS_CACHE_TTL) return weaoExploitsCache;
+  try {
+    const response = await fetch(`https://${_apiHost}${_apiPath}status/exploits`, {
+      headers: { 'User-Agent': 'WEAO-3PService', 'Accept': 'application/json' }
+    });
+    if (!response.ok) return weaoExploitsCache || [];
+    const data = await response.json();
+    weaoExploitsCache = data;
+    weaoExploitsCacheTime = now;
+    return data;
+  } catch (error) { return weaoExploitsCache || []; }
+}
+
+// Find exploit in WEAO data
+function findExploitInWeao(exploits, name) {
+  const nameLower = name.toLowerCase();
+  return exploits.find(e => e.title?.toLowerCase() === nameLower || 
+    e.title?.toLowerCase().replace(/[^a-z0-9]/g, '') === nameLower.replace(/[^a-z0-9]/g, ''));
+}
+
+// Fetch sUNC data from Rubis API
+async function fetchRubisData(scrapId, accessKey) {
+  try {
+    const url = `https://${_src.rubis}${_src.rubisPath}${scrapId}/raw?accessKey=${accessKey}`;
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json' }
+    });
+    if (!response.ok) return null;
+    return await response.json();
+  } catch (error) { return null; }
+}
+
+// Categorize test results from Rubis
+function categorizeRubisResults(passed = [], failed = []) {
   const results = [];
   const categories = {};
-  
-  for (const [category, funcs] of Object.entries(suncFunctions)) {
-    categories[category] = [];
-    for (const func of funcs) {
-      const result = { name: func, status: 'pass' };
-      results.push(result);
-      categories[category].push(result);
+  passed.forEach(name => results.push({ name, status: 'pass' }));
+  failed.forEach(name => results.push({ name, status: 'fail' }));
+  results.forEach(result => {
+    const nameLower = result.name.toLowerCase();
+    let categorized = false;
+    for (const [category, patterns] of Object.entries(categoryMap)) {
+      for (const pattern of patterns) {
+        if (nameLower.includes(pattern.toLowerCase())) {
+          if (!categories[category]) categories[category] = [];
+          categories[category].push(result);
+          categorized = true;
+          break;
+        }
+      }
+      if (categorized) break;
     }
-  }
-  
+    if (!categorized) {
+      if (!categories['other']) categories['other'] = [];
+      categories['other'].push(result);
+    }
+  });
   return { results, categories };
 }
 
-const fullSuncResults = generateFullSuncResults();
-
-// Rubis.app sUNC test data (updated Dec 2025)
-const rubisTestData = {
-  'wave': {
-    sunc: { 
-      percentage: 100, passed: 85, total: 85, failed: 0, 
-      testDate: '2025-12-02', version: '2.1.0', source: 'rubis.app',
-      results: fullSuncResults.results, categories: fullSuncResults.categories
-    }
-  },
-  'seliware': {
-    sunc: { 
-      percentage: 100, passed: 85, total: 85, failed: 0, 
-      testDate: '2025-12-02', version: '2.1.0', source: 'rubis.app',
-      results: fullSuncResults.results, categories: fullSuncResults.categories
-    }
-  },
-  'potassium': {
-    sunc: { 
-      percentage: 100, passed: 85, total: 85, failed: 0, 
-      testDate: '2025-12-02', version: '2.1.0', source: 'rubis.app',
-      results: fullSuncResults.results, categories: fullSuncResults.categories
-    }
+// Parse Rubis sUNC data
+function parseRubisData(rubisData, executorName) {
+  if (!rubisData || !rubisData.__SUNC) return null;
+  const passed = rubisData.tests?.passed || [];
+  const failed = rubisData.tests?.failed || [];
+  const total = passed.length + failed.length;
+  const percentage = total > 0 ? Math.round((passed.length / total) * 100) : 0;
+  let testDate = null;
+  if (rubisData.timestamp) {
+    const date = new Date(rubisData.timestamp * 1000);
+    testDate = date.toISOString().split('T')[0];
   }
-};
+  const { results, categories } = categorizeRubisResults(passed, failed);
+  return {
+    executorName: rubisData.executor || executorName,
+    testType: 'sunc',
+    percentage, passed: passed.length, total, failed: failed.length,
+    testDate, version: rubisData.version || '2.1.0', timeTaken: rubisData.timeTaken,
+    source: 'rubis.app', results, categories
+  };
+}
 
 // Executor mapping (internal reference)
 const _xMap = {
-  'wave': 'wave',
-  'seliware': 'seliware',
-  'delta': 'delta',
-  'codex': 'codex',
-  'velocity': 'Velocity',
-  'awp': 'awp',
-  'cryptic': 'cryptic',
-  'ember': 'ember',
-  'krnl': 'krnl',
-  'macsploit': 'macsploit',
-  'nihon': 'nihon',
-  'nksoftware': 'nksoftware',
-  'ronix': 'ronix',
-  'sirhurt': 'sirhurt',
-  'solara': 'solara',
-  'swift': 'swift',
-  'synapsez': 'synapsez',
-  'vegax': 'vegax',
-  'xeno': 'xeno',
-  'zenith': 'zenith',
-  'matcha': 'matcha',
-  'potassium': 'potassium'
+  'wave': 'wave', 'seliware': 'seliware', 'delta': 'delta', 'codex': 'codex',
+  'velocity': 'Velocity', 'cryptic': 'cryptic', 'krnl': 'krnl', 'macsploit': 'macsploit',
+  'sirhurt': 'sirhurt', 'solara': 'solara', 'swift': 'swift', 'xeno': 'xeno',
+  'zenith': 'zenith', 'matcha': 'matcha', 'potassium': 'potassium', 'volt': 'volt',
+  'volcano': 'volcano', 'valex': 'valex', 'bunni.lol': 'bunnilol', 'bunnilol': 'bunnilol',
+  'hydrogen': 'hydrogen', 'nucleus': 'nucleus', 'chocosploit': 'chocosploit'
 };
 
 app.get('/api/unc-test/:name', strictLimiter, async (req, res) => {
@@ -420,29 +452,24 @@ app.get('/api/unc-test/:name', strictLimiter, async (req, res) => {
       return res.json(uncTestCache[cacheKey].data);
     }
     
-    // Check for rubis.app data (priority for sunc)
-    if (testType === 'sunc' && rubisTestData[nameLower]?.sunc) {
-      const rubisData = rubisTestData[nameLower].sunc;
-      const parsedData = {
-        executorName: name,
-        testType: 'sunc',
-        percentage: rubisData.percentage,
-        passed: rubisData.passed,
-        total: rubisData.total,
-        failed: rubisData.failed,
-        testDate: rubisData.testDate,
-        source: rubisData.source,
-        version: rubisData.version,
-        results: rubisData.results || [],
-        categories: rubisData.categories || {}
-      };
-      
-      uncTestCache[cacheKey] = { data: parsedData, timestamp: now };
-      res.setHeader('Cache-Control', 'public, max-age=300');
-      return res.json(parsedData);
+    // For sUNC - try Rubis API via WEAO
+    if (testType === 'sunc') {
+      const exploits = await fetchWeaoExploitsForRubis();
+      const exploit = findExploitInWeao(exploits, name);
+      if (exploit?.sunc?.suncScrap && exploit?.sunc?.suncKey) {
+        const rubisData = await fetchRubisData(exploit.sunc.suncScrap, exploit.sunc.suncKey);
+        if (rubisData) {
+          const parsedData = parseRubisData(rubisData, name);
+          if (parsedData) {
+            uncTestCache[cacheKey] = { data: parsedData, timestamp: now };
+            res.setHeader('Cache-Control', 'public, max-age=300');
+            return res.json(parsedData);
+          }
+        }
+      }
     }
     
-    // Get internal filename
+    // Fallback to voxlis source
     const _xName = _xMap[nameLower];
     if (!_xName) {
       return res.status(404).json({ error: 'Executor not found in test database' });
